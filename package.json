@@ -1,7 +1,7 @@
 {
   "name": "single-source-of-truth",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Use Zod schemas to generate a single source of truth for your Prisma models",
   "license": "MIT",
   "keywords": ["zod", "prisma", "single-source-of-truth", "source-of-truth"],
@@ -15,13 +15,17 @@
   },
   "files": ["dist"],
   "exports": {
-    "./zod": {
-      "import": "./dist/zod.js",
-      "types": "./dist/zod.d.ts"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./prisma": {
+      "import": "./dist/prisma/index.js",
+      "types": "./dist/prisma/index.d.ts"
     }
   },
   "bin": {
-    "sst": "./dist/cli.js"
+    "sot": "./dist/cli.js"
   },
   "scripts": {
     "lint": "biome lint . --write",
@@ -31,6 +35,7 @@
     "dev": "pnpm build --watch"
   },
   "dependencies": {
+    "chalk": "^5.3.0",
     "tsx": "^4.16.2"
   },
   "peerDependencies": {
