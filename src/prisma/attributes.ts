@@ -1,12 +1,5 @@
 import { z } from 'zod';
 
-declare module 'zod' {
-  interface ZodDate {
-    default(d: z.util.noUndefined<Date> | typeof Date.now): z.ZodDefault<this>;
-    default(d: () => z.util.noUndefined<Date>): z.ZodDefault<this>;
-  }
-}
-
 export const ModelAttributes = z
   .object({
     map: z.string(),

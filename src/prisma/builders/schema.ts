@@ -45,7 +45,7 @@ export function buildPrismaSchema(context: { models: Model[]; enums: Enum[] }) {
         schema += ` @relation(fields: [${f.attributes.relation[0].join(',')}], references: [${f.attributes.relation[1].join(',')}])`;
       if (f.attributes.default) {
         const df = f.attributes.default;
-        if (df === Date.now) schema += ' @default(now())';
+        if (df.toString().includes('new Date()')) schema += ' @default(now())';
         else {
           const dv = df();
           if (Array.isArray(dv) && dv.length === 0) schema += ' @default([])';
