@@ -14,7 +14,7 @@ type UnionToIntersection<U> = Prettify<
 function attributes<T extends {}, TAttributes extends Attributes[]>(
   target: T,
   ...attributes: TAttributes
-) {
+): T {
   const _ = attributes.reduce(
     (a, c) => Object.assign(a, c),
     {},
