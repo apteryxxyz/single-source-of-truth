@@ -1,7 +1,7 @@
 {
   "name": "single-source-of-truth",
   "type": "module",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Use Zod schemas to generate a single source of truth for your Prisma models",
   "license": "MIT",
   "keywords": ["zod", "prisma", "single-source-of-truth", "source-of-truth"],
