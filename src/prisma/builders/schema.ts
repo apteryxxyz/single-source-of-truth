@@ -52,7 +52,7 @@ export function buildPrismaSchema(context: { models: Model[]; enums: Enum[] }) {
           schema += ' @default(now())';
         } else {
           const dv = df();
-          if (Array.isArray(dv) && dv.length === 0) schema += ' @default([])';
+          if (Array.isArray(dv)) schema += ` @default([${dv.join(', ')}])`;
           else if (typeof dv === 'string') schema += ` @default("${dv}")`;
           else if (typeof dv === 'number' || typeof dv === 'boolean')
             schema += ` @default(${dv})`;

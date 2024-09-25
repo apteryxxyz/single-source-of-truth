@@ -43,6 +43,9 @@ export function parseField(
     } else if (current instanceof z.ZodArray) {
       attributes.list = true;
       current = current._def.type;
+    } else if (current instanceof z.ZodTuple) {
+      attributes.list = true;
+      current = current._def.items[0];
     } else if (current instanceof z.ZodNullable) {
       attributes.nullable = true;
       current = current._def.innerType;
