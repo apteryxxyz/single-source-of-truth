@@ -62,8 +62,10 @@ export function parseModel(
     const keys = Object.keys(current.shape) //
       .filter((k) => !fields.some((f) => f.name === k));
     if (keys.length !== 1) {
-      logger.error(`Expected a single field in the relation schema '${name}'`);
-      process.exit(1);
+      console.warn(
+        `Expected a single unique field in the relation schema '${name}', skipping`,
+      );
+      continue;
     }
 
     {
