@@ -1,31 +1,27 @@
-import { z } from 'zod';
-import attr from '~/attributes';
+import { ZodEffects, ZodIntersection, ZodLazy, type ZodTypeAny } from 'zod';
 import logger from '~/logger';
-import type { ModelAttributes } from '../attributes';
-import type { Enum } from './enum';
-import { type Field, parseField } from './field';
+import { TruthModel } from '~/schema/model';
+import { IdSymbol, IndexSymbol } from '~/schema/symbols';
+import { type PrismaField, parseField } from './field';
 
-export interface Model {
+export interface PrismaModel {
   name: string;
-  fields: Field[];
-  attributes: z.output<typeof ModelAttributes>;
+  fields: PrismaField[];
+  attributes: {
+    id?: [string, ...string[]];
+    index?: [string, ...string[]];
+  };
 }
 
-export function parseModel(
-  context: { models: Model[]; enums: Enum[] },
-  name: string,
-  schema: z.ZodTypeAny,
-): Model {
-  let attributes: Model['attributes'] = {};
-  const applyAttributes = (s: z.ZodTypeAny) =>
-    (attributes = Object.assign({}, attr.get(s).prisma_model, attributes));
-
-  let current: typeof schema = z.lazy(() => schema);
-  while (!(current instanceof z.ZodObject)) {
-    if (current instanceof z.ZodLazy) {
+export function parseModel(name: string, schema: ZodTypeAny): PrismaModel {
+  let current: typeof schema = ZodLazy.create(() => schema);
+  while (!(current instanceof TruthModel)) {
+    if (current instanceof ZodLazy) {
       current = current._def.getter();
-    } else if (current instanceof z.ZodEffects) {
+    } else if (current instanceof ZodEffects) {
       current = current._def.schema;
+    } else if (current instanceof ZodIntersection) {
+      current = current._def.left;
     } else {
       logger.warn(
         `Encountered an unexpected schema '${current._def.typeName}' for the model '${name}', attempting to skip`,
@@ -39,40 +35,14 @@ export function parseModel(
         process.exit(1);
       }
     }
-    applyAttributes(current);
-  }
-  applyAttributes(current);
-
-  const fields = Object.entries(current.shape) //
-    .map(([k, v]) => parseField(context, k, v as z.ZodTypeAny));
-  if (fields.some((f) => Reflect.get(f.attributes, 'relation'))) {
-    logger.error('Relation fields should only be defined in relations schemas');
-    process.exit(1);
   }
 
-  const relations = Object.entries(schema) //
-    .filter(([k]) => k.startsWith('With'));
-  for (const [name, schema] of relations) {
-    let current = schema;
-    while (!(current instanceof z.ZodObject)) {
-      if (current instanceof z.ZodLazy) current = current._def.getter();
-      if (current instanceof z.ZodEffects) current = current._def.schema;
-    }
+  const shape = current._def.fullShape();
+  const attributes = { id: shape[IdSymbol], index: shape[IndexSymbol] };
 
-    const keys = Object.keys(current.shape) //
-      .filter((k) => !fields.some((f) => f.name === k));
-    if (keys.length !== 1) {
-      logger.warn(
-        `Expected a single unique field in the relation schema '${name}', skipping`,
-      );
-      continue;
-    }
-
-    {
-      const [name, schema] = [keys[0]!, current.shape[keys[0]!]];
-      fields.push(parseField(context, name, schema as z.ZodTypeAny));
-    }
-  }
+  const fields = Object.entries(shape) //
+    .filter(([k]) => typeof k === 'string')
+    .map(([k, v]) => parseField(k, v as ZodTypeAny));
 
   return { name, fields, attributes };
 }

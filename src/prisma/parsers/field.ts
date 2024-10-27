@@ -1,53 +1,80 @@
-import { z } from 'zod';
-import attr from '~/attributes';
+import {
+  ZodArray,
+  ZodBoolean,
+  ZodDate,
+  ZodDefault,
+  ZodEffects,
+  ZodLazy,
+  ZodNullable,
+  ZodNumber,
+  ZodObject,
+  ZodRecord,
+  ZodString,
+  ZodTuple,
+  type ZodTypeAny,
+} from 'zod';
 import logger from '~/logger';
-import type { FieldAttributes, FieldRelationAttributes } from '../attributes';
-import type { Enum } from './enum';
-import type { Model } from './model';
+import { TruthEnum } from '~/schema/enum';
+import { TruthMany, TruthRelation } from '~/schema/relation';
+import {
+  IdSymbol,
+  IndexSymbol,
+  UniqueSymbol,
+  UpdatedAtSymbol,
+} from '~/schema/symbols';
 
-export interface Field {
+export interface PrismaField {
   name: string;
-  type: string | (() => string);
-  attributes: z.output<typeof FieldAttributes> &
-    z.output<typeof FieldRelationAttributes>;
+  type: string;
+  attributes: {
+    id?: boolean;
+    unique?: boolean;
+    index?: boolean;
+    list?: boolean;
+    nullable?: boolean;
+    updatedAt?: boolean;
+    default?: () => unknown;
+    relation?: [string[], string[]];
+  };
 }
 
-export function parseField(
-  context: { models: Model[]; enums: Enum[] },
-  name: string,
-  schema: z.ZodTypeAny,
-): Field {
-  // @ts-ignore
-  let attributes: Field['attributes'] = {};
-  const applyAttributes = (s: z.ZodTypeAny) =>
-    (attributes = Object.assign({}, attr.get(s).prisma_field, attributes));
+export function parseField(name: string, schema: ZodTypeAny): PrismaField {
+  const attributes: PrismaField['attributes'] = {};
+  const applyAttributes = (s: ZodTypeAny) => {
+    attributes.id = s._def[IdSymbol] === true;
+    attributes.unique = s._def[UniqueSymbol] === true;
+    attributes.index = s._def[IndexSymbol] === true;
+    attributes.updatedAt = s._def[UpdatedAtSymbol] === true;
+  };
 
-  let current: typeof schema = z.lazy(() => schema);
+  let current: typeof schema = ZodLazy.create(() => schema);
   while (
     !(
-      current instanceof z.ZodBoolean ||
-      current instanceof z.ZodNumber ||
-      current instanceof z.ZodString ||
-      current instanceof z.ZodDate ||
-      current instanceof z.ZodObject ||
-      current instanceof z.ZodEnum
+      current instanceof ZodBoolean ||
+      current instanceof ZodNumber ||
+      current instanceof ZodString ||
+      current instanceof ZodDate ||
+      current instanceof ZodObject ||
+      current instanceof ZodRecord ||
+      current instanceof TruthRelation ||
+      current instanceof TruthEnum
     )
   ) {
-    if (current instanceof z.ZodLazy) {
+    if (current instanceof ZodLazy) {
       current = current._def.getter();
-    } else if (current instanceof z.ZodEffects) {
+    } else if (current instanceof ZodEffects) {
       current = current._def.schema;
-    } else if (current instanceof z.ZodDefault) {
-      attributes.default = current._def.defaultValue;
-      current = current._def.innerType;
-    } else if (current instanceof z.ZodArray) {
-      attributes.list = true;
+    } else if (current instanceof ZodArray) {
       current = current._def.type;
-    } else if (current instanceof z.ZodTuple) {
       attributes.list = true;
-      current = current._def.items[0];
-    } else if (current instanceof z.ZodNullable) {
+    } else if (current instanceof ZodNullable) {
+      current = current._def.innerType;
       attributes.nullable = true;
+    } else if (current instanceof ZodTuple) {
+      current = current._def.items[0];
+      attributes.list = true;
+    } else if (current instanceof ZodDefault) {
+      attributes.default = current._def.defaultValue;
       current = current._def.innerType;
     } else {
       logger.warn(
@@ -66,31 +93,28 @@ export function parseField(
   applyAttributes(current);
 
   let type = undefined;
-  if (current instanceof z.ZodString) {
+  if (current instanceof ZodString) {
     type = 'String';
-  } else if (current instanceof z.ZodNumber) {
+  } else if (current instanceof ZodNumber) {
     if (current._def.checks.some((c) => c.kind === 'int')) type = 'Int';
     else type = 'Float';
-  } else if (current instanceof z.ZodBoolean) {
+  } else if (current instanceof ZodBoolean) {
     type = 'Boolean';
-  } else if (current instanceof z.ZodDate) {
+  } else if (current instanceof ZodDate) {
     type = 'DateTime';
-  } else if (current instanceof z.ZodObject) {
-    type = () => {
-      const found = context.models.find((m) => {
-        const l = Object.keys(current.shape);
-        const r = m.fields.map((f) => f.name);
-        return l.every((k) => r.includes(k));
-      });
-      return found ? found.name : 'Json';
-    };
-  } else if (current instanceof z.ZodEnum) {
-    type = () => {
-      const values = current.options.map(String);
-      const found = context.enums //
-        .find((e) => e.values.every((v) => values.includes(String(v))));
-      return found ? found.name : 'String';
-    };
+  } else if (current instanceof ZodObject || current instanceof ZodRecord) {
+    type = 'Json';
+  } else if (current instanceof TruthRelation) {
+    type = current._def.modelName;
+    if (current instanceof TruthMany) attributes.list = true;
+
+    if (current._def.fieldName && current._def.relatedFieldName)
+      attributes.relation = [
+        current._def.fieldName,
+        current._def.relatedFieldName,
+      ];
+  } else if (current instanceof TruthEnum) {
+    type = current._def.enumName;
   } else {
     logger.error(
       `Failed to parse the field '${name}', could not determine type`,
