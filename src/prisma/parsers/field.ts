@@ -16,12 +16,7 @@ import {
 import logger from '~/logger';
 import { TruthEnum } from '~/schema/enum';
 import { TruthMany, TruthRelation } from '~/schema/relation';
-import {
-  IdSymbol,
-  IndexSymbol,
-  UniqueSymbol,
-  UpdatedAtSymbol,
-} from '~/schema/symbols';
+import { Id, Index, Unique, UpdatedAt } from '~/schema/symbols';
 
 export interface PrismaField {
   name: string;
@@ -41,10 +36,10 @@ export interface PrismaField {
 export function parseField(name: string, schema: ZodTypeAny): PrismaField {
   const attributes: PrismaField['attributes'] = {};
   const applyAttributes = (s: ZodTypeAny) => {
-    attributes.id = s._def[IdSymbol] === true;
-    attributes.unique = s._def[UniqueSymbol] === true;
-    attributes.index = s._def[IndexSymbol] === true;
-    attributes.updatedAt = s._def[UpdatedAtSymbol] === true;
+    attributes.id = s._def[Id] === true;
+    attributes.unique = s._def[Unique] === true;
+    attributes.index = s._def[Index] === true;
+    attributes.updatedAt = s._def[UpdatedAt] === true;
   };
 
   let current: typeof schema = ZodLazy.create(() => schema);
@@ -114,7 +109,7 @@ export function parseField(name: string, schema: ZodTypeAny): PrismaField {
         current._def.relatedFieldName,
       ];
   } else if (current instanceof TruthEnum) {
-    type = current._def.enumName;
+    type = current._def.truthName;
   } else {
     logger.error(
       `Failed to parse the field '${name}', could not determine type`,

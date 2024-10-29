@@ -1,5 +1,4 @@
-import type { TypeOf as ZodTypeOf } from 'zod';
-import type { TruthEnum } from './enum';
+import type { ZodTypeAny, TypeOf as ZodTypeOf } from 'zod';
 import type {
   ModelContext,
   ModelRawShape,
@@ -8,18 +7,19 @@ import type {
 } from './model';
 import type { TruthMany, TruthOne } from './relation';
 
+const Type = Symbol.for('_t.type');
+
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 type Any = any;
 
-export type Infer<T> = //
-  T extends TruthModel<infer TName, Any>
-    ? { __name?: TName } & ZodTypeOf<T>
-    : T extends TruthEnum<Any, Any>
-      ? ZodTypeOf<T>
-      : never;
+type Simplify<T> = { [K in keyof T]: T[K] } & {};
+
+export type Infer<T extends ZodTypeAny> = Simplify<
+  { [Type]?: T['_def']['truthName'] } & ZodTypeOf<T>
+>;
 
 export type With<
-  T extends { __name?: keyof ModelContext },
+  T extends { [Type]?: keyof ModelContext },
   TO extends {
     [K in _TKeys]: _TShape[K] extends TruthMany<infer TModelName>
       ? Infer<ModelContext[TModelName]>[]
@@ -28,7 +28,7 @@ export type With<
         : never;
   },
   _TModel extends TruthModel<Any, Any> = //
-  ModelContext[Extract<T['__name'], keyof ModelContext>],
+  ModelContext[Extract<T[typeof Type], keyof ModelContext>],
   _TShape extends ModelRawShape = ReturnType<_TModel['_def']['fullShape']>,
   _TKeys extends string = RelationKeys<_TShape>,
-> = T & TO;
+> = Simplify<T & TO>;

@@ -11,13 +11,8 @@ import { TruthMany, TruthOne } from './schema/relation';
 export const one = TruthOne.create;
 export const many = TruthMany.create;
 
-import {
-  IdSymbol,
-  IndexSymbol,
-  UniqueSymbol,
-  UpdatedAtSymbol,
-} from './schema/symbols';
-export const id: typeof IdSymbol = IdSymbol;
-export const unique: typeof UniqueSymbol = UniqueSymbol;
-export const index: typeof IndexSymbol = IndexSymbol;
-export const updatedAt: typeof UpdatedAtSymbol = UpdatedAtSymbol;
+import { Id, Index, Unique, UpdatedAt } from './schema/symbols';
+export const id: typeof Id = Id as typeof Id;
+export const unique: typeof Unique = Unique as typeof Unique;
+export const index: typeof Index = Index as typeof Index;
+export const updatedAt: typeof UpdatedAt = UpdatedAt as typeof UpdatedAt;

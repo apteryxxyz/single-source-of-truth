@@ -1,7 +1,7 @@
 import { ZodEffects, ZodIntersection, ZodLazy, type ZodTypeAny } from 'zod';
 import logger from '~/logger';
 import { TruthModel } from '~/schema/model';
-import { IdSymbol, IndexSymbol } from '~/schema/symbols';
+import { Id, Index } from '~/schema/symbols';
 import { type PrismaField, parseField } from './field';
 
 export interface PrismaModel {
@@ -38,7 +38,7 @@ export function parseModel(name: string, schema: ZodTypeAny): PrismaModel {
   }
 
   const shape = current._def.fullShape();
-  const attributes = { id: shape[IdSymbol], index: shape[IndexSymbol] };
+  const attributes = { id: shape[Id], index: shape[Index] };
 
   const fields = Object.entries(shape) //
     .filter(([k]) => typeof k === 'string')

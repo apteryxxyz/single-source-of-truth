@@ -6,7 +6,7 @@ import {
   type ZodRawShape,
 } from 'zod';
 import type { TruthMany, TruthOne, TruthRelation } from './relation';
-import { IdSymbol, IndexSymbol } from './symbols';
+import { Id, Index } from './symbols';
 
 // biome-ignore lint/suspicious/noEmptyInterface: <explanation>
 export interface ModelContext {}
@@ -19,7 +19,7 @@ export interface TruthModelDef<
   TShape extends ModelRawShape,
   TInclude extends RelationKeys<TShape> = never,
 > extends ZodObjectDef<MakeZodRawShape<TShape, TInclude>> {
-  modelName: TName;
+  truthName: TName;
   fullShape: () => TShape;
 }
 
@@ -33,7 +33,7 @@ export class TruthModel<
 
   constructor(def: TruthModelDef<TName, TShape, TInclude>) {
     super(def);
-    Reflect.set(ModelContext, def.modelName, this);
+    Reflect.set(ModelContext, def.truthName, this);
   }
 
   static override create<TTName extends string, TTShape extends ModelRawShape>(
@@ -41,7 +41,7 @@ export class TruthModel<
     shape: TTShape,
   ) {
     return new TruthModel<TTName, TTShape>({
-      modelName: name,
+      truthName: name,
       typeName: ZodFirstPartyTypeKind.ZodObject,
       fullShape: () => shape,
       shape: () => shape,
@@ -60,7 +60,7 @@ export class TruthModel<
         ...keys.reduce(
           (acc, key) => {
             // @ts-ignore
-            acc[key] = ModelContext[this._def.fullShape()[key].modelName];
+            acc[key] = ModelContext[this._def.fullShape()[key].truthName];
             return acc;
           },
           {} as Record<string, unknown>,
@@ -72,15 +72,15 @@ export class TruthModel<
 
 //
 
-export interface ModelRawShape extends ZodRawShape {
-  [IdSymbol]?: [string, ...string[]];
-  [IndexSymbol]?: [string, ...string[]];
-}
+export type ModelRawShape = ZodRawShape & {
+  [Id]?: [string, ...string[]];
+  [Index]?: [string, ...string[]];
+};
 
 export type MakeZodRawShape<
   TShape extends ModelRawShape,
   TInclude extends RelationKeys<TShape> = never,
-> = Omit<TShape, typeof IdSymbol | RelationKeys<TShape>> & {
+> = Omit<TShape, typeof Id | RelationKeys<TShape>> & {
   [K in TInclude]: TShape[K] extends TruthMany<infer TModelName>
     ? ModelContext[TModelName][]
     : TShape[K] extends TruthOne<infer TModelName>

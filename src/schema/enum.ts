@@ -10,7 +10,7 @@ export interface TruthEnumDef<
   TName extends string,
   TValues extends [string, ...string[]],
 > extends ZodEnumDef<TValues> {
-  enumName: TName;
+  truthName: TName;
 }
 
 // @ts-ignore
@@ -23,7 +23,7 @@ export class TruthEnum<
 
   constructor(def: TruthEnumDef<TName, TValues>) {
     super(def);
-    Reflect.set(EnumContext, def.enumName, this);
+    Reflect.set(EnumContext, def.truthName, this);
   }
 
   static override create<
@@ -32,7 +32,7 @@ export class TruthEnum<
   >(name: TTName, values: TTValues) {
     const enum_ = new TruthEnum<TTName, TTValues>({
       typeName: ZodFirstPartyTypeKind.ZodEnum,
-      enumName: name,
+      truthName: name,
       values,
     });
 

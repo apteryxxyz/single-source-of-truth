@@ -1,101 +1,96 @@
 import { ZodBoolean, ZodDate, ZodNumber, ZodString } from 'zod';
-import {
-  IdSymbol,
-  IndexSymbol,
-  UniqueSymbol,
-  UpdatedAtSymbol,
-} from './symbols';
+import { Id, Index, Unique, UpdatedAt } from './symbols';
 
 declare module 'zod' {
   interface ZodStringDef {
-    [IdSymbol]?: boolean;
-    [UniqueSymbol]?: boolean;
-    [IndexSymbol]?: boolean;
+    [Id]?: boolean;
+    [Unique]?: boolean;
+    [Index]?: boolean;
   }
   interface ZodString {
-    [IdSymbol](): ZodString;
-    [UniqueSymbol](): ZodString;
-    [IndexSymbol](): boolean;
+    [Id](): ZodString;
+    [Unique](): ZodString;
+    [Index](): boolean;
   }
 
   interface ZodNumberDef {
-    [IdSymbol]?: boolean;
-    [UniqueSymbol]?: boolean;
-    [IndexSymbol]?: boolean;
+    [Id]?: boolean;
+    [Unique]?: boolean;
+    [Index]?: boolean;
   }
   interface ZodNumber {
-    [IdSymbol](): ZodNumber;
-    [UniqueSymbol](): ZodNumber;
-    [IndexSymbol](): boolean;
+    [Id](): ZodNumber;
+    [Unique](): ZodNumber;
+    [Index](): boolean;
   }
 
   interface ZodBooleanDef {
-    [IndexSymbol]?: boolean;
+    [Index]?: boolean;
   }
   interface ZodBoolean {
-    [IndexSymbol](): boolean;
+    [Index](): boolean;
   }
 
   interface ZodDateDef {
-    [UpdatedAtSymbol]?: boolean;
+    [UpdatedAt]?: boolean;
   }
   interface ZodDate {
-    [UpdatedAtSymbol](): ZodDate;
+    [UpdatedAt](): ZodDate;
   }
 }
 
-Reflect.set(ZodString.prototype, IdSymbol, function (this: ZodString) {
+Reflect.set(ZodString.prototype, Id, function (this: ZodString) {
   return new ZodString({
     ...this._def,
-    [IdSymbol]: true,
+    [Id]: true,
   });
 });
 
-Reflect.set(ZodString.prototype, UniqueSymbol, function (this: ZodString) {
+Reflect.set(ZodString.prototype, Unique, function (this: ZodString) {
   return new ZodString({
     ...this._def,
-    [UniqueSymbol]: true,
+    [Unique]: true,
   });
 });
 
-Reflect.set(ZodString.prototype, IndexSymbol, function (this: ZodString) {
+Reflect.set(ZodString.prototype, Index, function (this: ZodString) {
   return new ZodString({
     ...this._def,
-    [IndexSymbol]: true,
+    [Index]: true,
   });
 });
 
-Reflect.set(ZodNumber.prototype, IdSymbol, function (this: ZodNumber) {
+Reflect.set(ZodNumber.prototype, Id, function (this: ZodNumber) {
   return new ZodNumber({
     ...this._def,
-    [IdSymbol]: true,
+    [Id]: true,
   });
 });
 
-Reflect.set(ZodNumber.prototype, UniqueSymbol, function (this: ZodNumber) {
+Reflect.set(ZodNumber.prototype, Unique, function (this: ZodNumber) {
   return new ZodNumber({
     ...this._def,
-    [UniqueSymbol]: true,
+    [Unique]: true,
   });
 });
 
-Reflect.set(ZodNumber.prototype, IndexSymbol, function (this: ZodNumber) {
+Reflect.set(ZodNumber.prototype, Index, function (this: ZodNumber) {
   return new ZodNumber({
     ...this._def,
-    [IndexSymbol]: true,
+    [Index]: true,
   });
 });
 
-Reflect.set(ZodBoolean.prototype, IndexSymbol, function (this: ZodBoolean) {
+Reflect.set(ZodBoolean.prototype, Index, function (this: ZodBoolean) {
   return new ZodBoolean({
     ...this._def,
-    [IndexSymbol]: true,
+    [Index]: true,
   });
 });
 
-Reflect.set(ZodDate.prototype, UpdatedAtSymbol, function (this: ZodDate) {
+Reflect.set(ZodDate.prototype, UpdatedAt, function (this: ZodDate) {
   return new ZodDate({
     ...this._def,
-    [UpdatedAtSymbol]: true,
+    [UpdatedAt]: true,
   });
 });

@@ -10,9 +10,4 @@ export {
   TruthOne,
 } from './schema/relation';
 export type { Infer, With } from './schema/infer';
-export {
-  IdSymbol,
-  IndexSymbol,
-  UniqueSymbol,
-  UpdatedAtSymbol,
-} from './schema/symbols';
+export { Id, Index, Unique, UpdatedAt } from './schema/symbols';
