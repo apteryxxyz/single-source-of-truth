@@ -47,10 +47,13 @@ export class TruthOne<
 > extends TruthRelation<'one', TModelName> {
   protected _ = 0;
 
-  public static override create<TModelName extends keyof ModelContext>(
+  public static override create<
+    TModelName extends keyof ModelContext,
+    TFieldLength extends number,
+  >(
     modelName: TModelName,
-    fieldName: [string, ...string[]],
-    relatedFieldName: [string, ...string[]],
+    fieldName: [string, ...string[]] & { length: TFieldLength },
+    relatedFieldName: [string, ...string[]] & { length: NoInfer<TFieldLength> },
   ) {
     return new TruthOne<TModelName>({
       modelName,

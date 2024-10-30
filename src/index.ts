@@ -9,5 +9,4 @@ export {
   TruthMany,
   TruthOne,
 } from './schema/relation';
-export type { Infer, With } from './schema/infer';
 export { Id, Index, Unique, UpdatedAt } from './schema/symbols';

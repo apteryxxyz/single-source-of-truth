@@ -1,11 +1,13 @@
 import {
+  ZodArray,
   ZodFirstPartyTypeKind,
   ZodNever,
   ZodObject,
   type ZodObjectDef,
-  type ZodRawShape,
+  type ZodTypeAny,
 } from 'zod';
-import type { TruthMany, TruthOne, TruthRelation } from './relation';
+import type { Any } from '../types';
+import { TruthMany, type TruthOne, TruthRelation } from './relation';
 import { Id, Index } from './symbols';
 
 // biome-ignore lint/suspicious/noEmptyInterface: <explanation>
@@ -17,17 +19,18 @@ export const ModelContext = {};
 export interface TruthModelDef<
   TName extends string,
   TShape extends ModelRawShape,
-  TInclude extends RelationKeys<TShape> = never,
+  TInclude extends GetRelationKeys<TShape> = never,
 > extends ZodObjectDef<MakeZodRawShape<TShape, TInclude>> {
   truthName: TName;
   fullShape: () => TShape;
+  include: TInclude[];
 }
 
 // @ts-ignore
 export class TruthModel<
   TName extends string,
   TShape extends ModelRawShape,
-  TInclude extends RelationKeys<TShape> = never,
+  TInclude extends GetRelationKeys<TShape> = never,
 > extends ZodObject<MakeZodRawShape<TShape, TInclude>> {
   declare _def: TruthModelDef<TName, TShape, TInclude>;
 
@@ -44,57 +47,82 @@ export class TruthModel<
       truthName: name,
       typeName: ZodFirstPartyTypeKind.ZodObject,
       fullShape: () => shape,
-      shape: () => shape,
+      shape: () => makeZodRawShape(shape),
+      include: [],
       catchall: ZodNever.create(),
       unknownKeys: 'strip',
     });
   }
 
-  with<TTInclude extends Exclude<RelationKeys<TShape>, TInclude>>(
-    ...keys: [TTInclude, ...TTInclude[]]
+  with<TTInclude extends Exclude<GetRelationKeys<TShape>, TInclude>>(
+    ...include: [TTInclude, ...TTInclude[]]
   ) {
     return new TruthModel<TName, TShape, TInclude | TTInclude>({
       ...this._def,
-      shape: () => ({
-        ...this._def.shape(),
-        ...keys.reduce(
-          (acc, key) => {
-            // @ts-ignore
-            acc[key] = ModelContext[this._def.fullShape()[key].truthName];
-            return acc;
-          },
-          {} as Record<string, unknown>,
+      include: [...this._def.include, ...include],
+      shape: () =>
+        makeZodRawShape(
+          this._def.fullShape(),
+          ...[...this._def.include, ...include],
         ),
-      }),
-    } as never);
+    });
   }
 }
 
 //
 
-export type ModelRawShape = ZodRawShape & {
-  [Id]?: [string, ...string[]];
-  [Index]?: [string, ...string[]];
-};
+export type ModelRawShape =
+  | {
+      [Id]?: [string, ...string[]];
+      [Index]?: [string, ...string[]];
+    }
+  | { [key: string]: ZodTypeAny };
 
 export type MakeZodRawShape<
   TShape extends ModelRawShape,
-  TInclude extends RelationKeys<TShape> = never,
-> = Omit<TShape, typeof Id | RelationKeys<TShape>> & {
+  TInclude extends GetRelationKeys<TShape>,
+> = Omit<TShape, Id | Index | GetRelationKeys<TShape>> & {
   [K in TInclude]: TShape[K] extends TruthMany<infer TModelName>
-    ? ModelContext[TModelName][]
+    ? ZodArray<ModelContext[TModelName]>
     : TShape[K] extends TruthOne<infer TModelName>
       ? ModelContext[TModelName]
       : never;
 };
 
-export type RelationKeys<TShape extends ModelRawShape> =
-  keyof TShape extends infer K
-    ? K extends string
-      ? // @ts-ignore
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-        TShape[K] extends TruthRelation<any, any>
-        ? K
-        : never
-      : never
-    : never;
+export function makeZodRawShape<
+  TShape extends ModelRawShape,
+  TInclude extends GetRelationKeys<TShape>,
+>(shape: TShape, ...include: TInclude[]) {
+  const relationKeys = getRelationKeys(shape);
+  return Object.entries(shape).reduce(
+    (acc, [key, value]) => {
+      if (key === Id || key === Index) {
+        return acc;
+      } else if (relationKeys.includes(key)) {
+        if (include.includes(key as TInclude)) {
+          // @ts-ignore
+          const relation = shape[key as TInclude] as TruthRelation<Any, Any>;
+          let schema = (ModelContext as Any)[relation._def.modelName];
+          if (relation instanceof TruthMany) schema = ZodArray.create(schema);
+          return Object.assign(acc, { [key]: schema });
+        } else {
+          return acc;
+        }
+      } else {
+        return Object.assign(acc, { [key]: value });
+      }
+    },
+    {} as MakeZodRawShape<TShape, TInclude>,
+  );
+}
+
+export type GetRelationKeys<TShape extends ModelRawShape> = {
+  // @ts-ignore
+  [K in keyof TShape]: TShape[K] extends TruthRelation<Any, Any> ? K : never;
+}[keyof TShape];
+
+export function getRelationKeys<TShape extends ModelRawShape>(shape: TShape) {
+  return Object.keys(shape).filter(
+    (k) => shape[k as keyof TShape] instanceof TruthRelation,
+  );
+}
