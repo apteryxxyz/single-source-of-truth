@@ -2,8 +2,8 @@ import { mkdir as makeDirectory, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { Command } from 'commander/esm.mjs';
 import logger from '~/logger';
-import { EnumContext } from '~/schema/enum';
-import { ModelContext } from '~/schema/model';
+import { Enums } from '~/schema/enum';
+import { Models } from '~/schema/model';
 import { buildPrismaSchema } from './builders/schema';
 import { parseEnum } from './parsers/enum';
 import { parseModel } from './parsers/model';
@@ -35,9 +35,9 @@ const generateCommand = new Command('generate')
         await import(url.toString());
 
         logger.info('Generating Prisma schema...');
-        const enums = Object.entries(EnumContext) //
+        const enums = Object.entries(Enums) //
           .map(([n, s]) => parseEnum(n, s as never));
-        const models = Object.entries(ModelContext) //
+        const models = Object.entries(Models) //
           .map(([n, s]) => parseModel(n, s as never));
         const schema = buildPrismaSchema(models, enums);
 

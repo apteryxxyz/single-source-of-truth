@@ -41,7 +41,7 @@ export function parseModel(name: string, schema: ZodTypeAny): PrismaModel {
   const attributes = { id: shape[Id], index: shape[Index] };
 
   const fields = Object.entries(shape) //
-    .filter(([k]) => typeof k === 'string')
+    .filter(([k]) => ![Id, Index].includes(k as never))
     .map(([k, v]) => parseField(k, v as ZodTypeAny));
 
   return { name, fields, attributes };

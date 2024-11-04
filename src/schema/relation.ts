@@ -1,9 +1,9 @@
 import { OK, ZodType, type ZodTypeDef } from 'zod';
-import type { ModelContext } from './model';
+import type { Models } from './model';
 
 export interface TruthRelationDef<TRelationKind extends 'one' | 'many'>
   extends ZodTypeDef {
-  modelName: keyof ModelContext;
+  modelName: keyof Models;
   relationKind: TRelationKind;
   fieldName: TRelationKind extends 'one' ? [string, ...string[]] : undefined;
   relatedFieldName: TRelationKind extends 'one'
@@ -13,7 +13,7 @@ export interface TruthRelationDef<TRelationKind extends 'one' | 'many'>
 
 export class TruthRelation<
   TRelationKind extends 'one' | 'many',
-  TModelName extends keyof ModelContext,
+  TModelName extends keyof Models,
 > extends ZodType<
   `t.${TRelationKind}.${TModelName}`,
   TruthRelationDef<TRelationKind>
@@ -23,7 +23,7 @@ export class TruthRelation<
   }
 
   static create<
-    TModelName extends keyof ModelContext,
+    TModelName extends keyof Models,
     TRelationKind extends 'one' | 'many',
   >(
     modelName: TModelName,
@@ -42,13 +42,14 @@ export class TruthRelation<
 }
 
 // @ts-ignore
-export class TruthOne<
-  TModelName extends keyof ModelContext,
-> extends TruthRelation<'one', TModelName> {
+export class TruthOne<TModelName extends keyof Models> extends TruthRelation<
+  'one',
+  TModelName
+> {
   protected _ = 0;
 
   public static override create<
-    TModelName extends keyof ModelContext,
+    TModelName extends keyof Models,
     TFieldLength extends number,
   >(
     modelName: TModelName,
@@ -65,12 +66,13 @@ export class TruthOne<
 }
 
 // @ts-ignore
-export class TruthMany<
-  TModelName extends keyof ModelContext,
-> extends TruthRelation<'many', TModelName> {
+export class TruthMany<TModelName extends keyof Models> extends TruthRelation<
+  'many',
+  TModelName
+> {
   protected _ = 0;
 
-  public static override create<TModelName extends keyof ModelContext>(
+  public static override create<TModelName extends keyof Models>(
     modelName: TModelName,
   ) {
     return new TruthMany<TModelName>({

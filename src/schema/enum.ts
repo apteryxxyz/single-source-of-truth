@@ -1,13 +1,13 @@
 import { ZodEnum, type ZodEnumDef, ZodFirstPartyTypeKind } from 'zod';
 
 // biome-ignore lint/suspicious/noEmptyInterface: <explanation>
-export interface EnumContext {}
-export const EnumContext = {};
+export interface Enums {}
+export const Enums = {};
 
 //
 
 export interface TruthEnumDef<
-  TName extends string,
+  TName extends string | null,
   TValues extends [string, ...string[]],
 > extends ZodEnumDef<TValues> {
   truthName: TName;
@@ -15,7 +15,7 @@ export interface TruthEnumDef<
 
 // @ts-ignore
 export class TruthEnum<
-  TName extends string,
+  TName extends string | null,
   const TValues extends [string, ...string[]],
 > extends ZodEnum<TValues> {
   protected _ = 0;
@@ -23,11 +23,11 @@ export class TruthEnum<
 
   constructor(def: TruthEnumDef<TName, TValues>) {
     super(def);
-    Reflect.set(EnumContext, def.truthName, this);
+    if (def.truthName) Reflect.set(Enums, def.truthName, this);
   }
 
   static override create<
-    TTName extends string,
+    TTName extends string | null,
     const TTValues extends [string, ...string[]],
   >(name: TTName, values: TTValues) {
     const enum_ = new TruthEnum<TTName, TTValues>({

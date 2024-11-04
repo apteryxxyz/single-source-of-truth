@@ -11,8 +11,8 @@ import { TruthMany, type TruthOne, TruthRelation } from './relation';
 import { Id, Index } from './symbols';
 
 // biome-ignore lint/suspicious/noEmptyInterface: <explanation>
-export interface ModelContext {}
-export const ModelContext = {};
+export interface Models {}
+export const Models = {};
 
 //
 
@@ -36,7 +36,7 @@ export class TruthModel<
 
   constructor(def: TruthModelDef<TName, TShape, TInclude>) {
     super(def);
-    Reflect.set(ModelContext, def.truthName, this);
+    Reflect.set(Models, def.truthName, this);
   }
 
   static override create<TTName extends string, TTShape extends ModelRawShape>(
@@ -83,9 +83,9 @@ export type MakeZodRawShape<
   TInclude extends GetRelationKeys<TShape>,
 > = Omit<TShape, Id | Index | GetRelationKeys<TShape>> & {
   [K in TInclude]: TShape[K] extends TruthMany<infer TModelName>
-    ? ZodArray<ModelContext[TModelName]>
+    ? ZodArray<Models[TModelName]>
     : TShape[K] extends TruthOne<infer TModelName>
-      ? ModelContext[TModelName]
+      ? Models[TModelName]
       : never;
 };
 
@@ -102,7 +102,7 @@ export function makeZodRawShape<
         if (include.includes(key as TInclude)) {
           // @ts-ignore
           const relation = shape[key as TInclude] as TruthRelation<Any, Any>;
-          let schema = (ModelContext as Any)[relation._def.modelName];
+          let schema = (Models as Any)[relation._def.modelName];
           if (relation instanceof TruthMany) schema = ZodArray.create(schema);
           return Object.assign(acc, { [key]: schema });
         } else {
