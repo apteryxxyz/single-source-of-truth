@@ -11,6 +11,7 @@ import {
   ZodRecord,
   ZodString,
   ZodTuple,
+  ZodUnknown,
   type ZodTypeAny,
 } from 'zod';
 import logger from '~/logger';
@@ -51,6 +52,7 @@ export function parseField(name: string, schema: ZodTypeAny): PrismaField {
       current instanceof ZodDate ||
       current instanceof ZodObject ||
       current instanceof ZodRecord ||
+      current instanceof ZodUnknown ||
       current instanceof TruthRelation ||
       current instanceof TruthEnum
     )
@@ -97,7 +99,11 @@ export function parseField(name: string, schema: ZodTypeAny): PrismaField {
     type = 'Boolean';
   } else if (current instanceof ZodDate) {
     type = 'DateTime';
-  } else if (current instanceof ZodObject || current instanceof ZodRecord) {
+  } else if (
+    current instanceof ZodObject ||
+    current instanceof ZodRecord ||
+    current instanceof ZodUnknown
+  ) {
     type = 'Json';
   } else if (current instanceof TruthRelation) {
     type = current._def.modelName;
