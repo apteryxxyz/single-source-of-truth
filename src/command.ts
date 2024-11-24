@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-import { program } from 'commander/esm.mjs';
+import { Command } from 'commander';
 import prismaCommand from './prisma/command';
 
-program
-  .name('single-source-of-truth')
+const command = new Command('single-source-of-truth')
   .alias('sot')
   .addCommand(prismaCommand)
   .parse();
+export default command;
 
 if (!process.argv.slice(2).length) {
-  program.outputHelp();
+  command.outputHelp();
 }

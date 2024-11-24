@@ -2,9 +2,7 @@ import type { PrismaEnum } from '../parsers/enum';
 import type { PrismaModel } from '../parsers/model';
 
 export function buildPrismaSchema(models: PrismaModel[], enums: PrismaEnum[]) {
-  let schema = `
-// This file was automatically generated, any changes made here will be lost
-`.trimStart();
+  let schema = '';
 
   // Enums
   for (const e of enums) {
@@ -37,7 +35,6 @@ export function buildPrismaSchema(models: PrismaModel[], enums: PrismaEnum[]) {
       // Field attributes
       if (f.attributes.id) schema += ' @id';
       if (f.attributes.unique) schema += ' @unique';
-      if (f.attributes.index) schema += ' @index';
       if (f.attributes.updatedAt) schema += ' @updatedAt';
 
       if (f.attributes.relation)
@@ -66,10 +63,10 @@ export function buildPrismaSchema(models: PrismaModel[], enums: PrismaEnum[]) {
     // Model attributes
     if (m.attributes.id?.length)
       schema += `  @@id([${m.attributes.id.join(', ')}])\n`;
-    if (m.attributes.index?.length)
-      schema += `  @@index([${m.attributes.index.join(', ')}])\n`;
+    // if (m.attributes.index?.length)
+    //   schema += `  @@index([${m.attributes.index.join(', ')}])\n`;
     schema += '}\n\n';
   }
 
-  return schema;
+  return `// This file was automatically generated, any changes made here will be lost\n\n${schema}`.trim();
 }

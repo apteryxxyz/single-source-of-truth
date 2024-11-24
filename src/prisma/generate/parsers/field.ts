@@ -4,6 +4,7 @@ import {
   ZodDate,
   ZodDefault,
   ZodEffects,
+  ZodEnum,
   ZodLazy,
   ZodNullable,
   ZodNumber,
@@ -11,13 +12,12 @@ import {
   ZodRecord,
   ZodString,
   ZodTuple,
-  ZodUnknown,
   type ZodTypeAny,
+  ZodUnknown,
 } from 'zod';
 import logger from '~/logger';
-import { TruthEnum } from '~/schema/enum';
-import { TruthMany, TruthRelation } from '~/schema/relation';
-import { Id, Index, Unique, UpdatedAt } from '~/schema/symbols';
+import { Enums } from '~/schema/enum';
+import type { ModelOptions } from '~/schema/model';
 
 export interface PrismaField {
   name: string;
@@ -25,7 +25,6 @@ export interface PrismaField {
   attributes: {
     id?: boolean;
     unique?: boolean;
-    index?: boolean;
     list?: boolean;
     nullable?: boolean;
     updatedAt?: boolean;
@@ -34,27 +33,25 @@ export interface PrismaField {
   };
 }
 
-export function parseField(name: string, schema: ZodTypeAny): PrismaField {
+export function parseField(
+  name: string,
+  schema: ZodTypeAny,
+  options: ModelOptions<ZodTypeAny>,
+): PrismaField {
   const attributes: PrismaField['attributes'] = {};
-  const applyAttributes = (s: ZodTypeAny) => {
-    attributes.id = s._def[Id] === true;
-    attributes.unique = s._def[Unique] === true;
-    attributes.index = s._def[Index] === true;
-    attributes.updatedAt = s._def[UpdatedAt] === true;
-  };
+  if (options.id.length === 1 && options.id[0] === name) attributes.id = true;
 
-  let current: typeof schema = ZodLazy.create(() => schema);
+  let current: ZodTypeAny = ZodLazy.create(() => schema);
   while (
     !(
-      current instanceof ZodBoolean ||
-      current instanceof ZodNumber ||
       current instanceof ZodString ||
+      current instanceof ZodNumber ||
+      current instanceof ZodBoolean ||
       current instanceof ZodDate ||
       current instanceof ZodObject ||
       current instanceof ZodRecord ||
       current instanceof ZodUnknown ||
-      current instanceof TruthRelation ||
-      current instanceof TruthEnum
+      current instanceof ZodEnum
     )
   ) {
     if (current instanceof ZodLazy) {
@@ -64,12 +61,12 @@ export function parseField(name: string, schema: ZodTypeAny): PrismaField {
     } else if (current instanceof ZodArray) {
       current = current._def.type;
       attributes.list = true;
-    } else if (current instanceof ZodNullable) {
-      current = current._def.innerType;
-      attributes.nullable = true;
     } else if (current instanceof ZodTuple) {
       current = current._def.items[0];
       attributes.list = true;
+    } else if (current instanceof ZodNullable) {
+      current = current._def.innerType;
+      attributes.nullable = true;
     } else if (current instanceof ZodDefault) {
       attributes.default = current._def.defaultValue;
       current = current._def.innerType;
@@ -85,9 +82,7 @@ export function parseField(name: string, schema: ZodTypeAny): PrismaField {
         process.exit(1);
       }
     }
-    applyAttributes(current);
   }
-  applyAttributes(current);
 
   let type = undefined;
   if (current instanceof ZodString) {
@@ -105,17 +100,10 @@ export function parseField(name: string, schema: ZodTypeAny): PrismaField {
     current instanceof ZodUnknown
   ) {
     type = 'Json';
-  } else if (current instanceof TruthRelation) {
-    type = current._def.modelName;
-    if (current instanceof TruthMany) attributes.list = true;
-
-    if (current._def.fieldName && current._def.relatedFieldName)
-      attributes.relation = [
-        current._def.fieldName,
-        current._def.relatedFieldName,
-      ];
-  } else if (current instanceof TruthEnum) {
-    type = current._def.truthName;
+  } else if (current instanceof ZodEnum) {
+    const found = Object.entries(Enums).find(([_, e]) => e === current);
+    if (found) type = found[0]!;
+    else type = 'String';
   } else {
     logger.error(
       `Failed to parse the field '${name}', could not determine type`,
@@ -124,4 +112,18 @@ export function parseField(name: string, schema: ZodTypeAny): PrismaField {
   }
 
   return { name, type, attributes };
+}
+
+export function parseRelationField(
+  name: string,
+  relation: [string] | [string, string[], string[]],
+): PrismaField {
+  return {
+    name,
+    type: relation[0],
+    attributes: {
+      list: relation.length === 1,
+      relation: relation.length > 1 ? [relation[1]!, relation[2]!] : undefined,
+    },
+  };
 }

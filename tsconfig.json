@@ -8,7 +8,7 @@
     "paths": { "~/*": ["src/*"] },
     "skipLibCheck": true,
     "noEmit": true,
-    "lib": ["dom", "es2023"],
+    "lib": ["DOM", "ESNext"],
     "strictNullChecks": true
   }
 }

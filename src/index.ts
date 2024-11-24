@@ -1,12 +1,24 @@
-export * as t from './export';
-export * as default from './export';
+/*
 
-export { type TruthModelDef, TruthModel, Models } from './schema/model';
-export { type TruthEnumDef, TruthEnum, Enums } from './schema/enum';
-export {
-  type TruthRelationDef,
-  TruthRelation,
-  TruthMany,
-  TruthOne,
-} from './schema/relation';
-export { Id, Index, Unique, UpdatedAt } from './schema/symbols';
+
+const User = t.model(
+  'User',
+  z.object({ id: z.string() }),
+  { id: ['id'] },
+  { connections: 'Connection' },
+);
+
+const Connection = t.model(
+  'Connection',
+  z.object({ userId: z.string(), targetId: z.string() }),
+  { id: ['userId', 'targetId'] },
+  { user: ['User', ['userId'], ['id']] },
+);
+
+
+
+*/
+
+export * as t from './export';
+export { Models } from './schema/model';
+export { Enums } from './schema/enum';
