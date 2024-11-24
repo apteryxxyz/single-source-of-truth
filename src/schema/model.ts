@@ -1,11 +1,11 @@
 import {
   type TypeOf,
-  type ZodArray,
+  ZodArray,
   ZodIntersection,
-  ZodLazy,
   ZodObject,
   type ZodTypeAny,
 } from 'zod';
+import type { AnyRelation } from './relation';
 
 export interface Models extends Record<string, AnyModel> {}
 export const Models: Models = {};
@@ -22,8 +22,8 @@ export type Model<
   };
   with<
     TInclude extends keyof TRelations,
-    TRelation extends TRelations[TInclude] = TRelations[TInclude],
-    TType extends ZodTypeAny = Models[TRelation[0]],
+    TRelation extends AnyRelation = TRelations[TInclude],
+    TType extends ZodTypeAny = Models[TRelation['name']],
     TOverride extends ZodTypeAny = TType,
   >(
     include: TInclude,
@@ -33,7 +33,7 @@ export type Model<
     ZodObject<
       Record<
         TInclude,
-        TRelation extends { length: 1 } ? ZodArray<TOverride> : TOverride
+        TRelation['list'] extends true ? ZodArray<TOverride> : TOverride
       >
     >
   >;
@@ -47,12 +47,15 @@ export type AnyModel = Model<
 export interface ModelOptions<
   TSchema extends ZodTypeAny,
   TShape extends object = TypeOf<TSchema>,
+  TKey extends Extract<keyof TShape, string> = Extract<keyof TShape, string>,
 > {
-  id: [Extract<keyof TShape, string>, ...Extract<keyof TShape, string>[]];
+  id: [TKey, ...TKey[]];
+  unique?: (TKey | TKey[])[];
+  index?: TKey[][];
 }
 
 export interface ModelRelations {
-  [key: string]: [keyof Models] | [keyof Models, string[], string[]];
+  [key: string]: AnyRelation;
 }
 
 // ==================== //
@@ -65,13 +68,12 @@ export function createModel<
   const model = Object.assign(schema, {
     _truth: { schema, options, relations },
     with(include: keyof TRelations, override = (s: ZodTypeAny) => s) {
+      const relation = relations[include]!;
+      const schema = override(Models[relation.name]!);
+      const wrapped = relation.list ? ZodArray.create(schema) : schema;
       return ZodIntersection.create(
         schema,
-        ZodObject.create({
-          [include]: ZodLazy.create(() =>
-            override(Models[relations[include]![0]!]!),
-          ),
-        }),
+        ZodObject.create({ [include]: wrapped }),
       );
     },
   });

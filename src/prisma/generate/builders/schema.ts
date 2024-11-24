@@ -63,8 +63,10 @@ export function buildPrismaSchema(models: PrismaModel[], enums: PrismaEnum[]) {
     // Model attributes
     if (m.attributes.id?.length)
       schema += `  @@id([${m.attributes.id.join(', ')}])\n`;
-    // if (m.attributes.index?.length)
-    //   schema += `  @@index([${m.attributes.index.join(', ')}])\n`;
+    if (m.attributes.unique?.length)
+      schema += `  @@unique([${m.attributes.unique.join(', ')}])\n`;
+    if (m.attributes.index?.length)
+      schema += `  @@index([${m.attributes.index.join(', ')}])\n`;
     schema += '}\n\n';
   }
 

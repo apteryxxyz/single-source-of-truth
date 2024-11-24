@@ -18,6 +18,7 @@ import {
 import logger from '~/logger';
 import { Enums } from '~/schema/enum';
 import type { ModelOptions } from '~/schema/model';
+import type { AnyRelation } from '~/schema/relation';
 
 export interface PrismaField {
   name: string;
@@ -40,6 +41,7 @@ export function parseField(
 ): PrismaField {
   const attributes: PrismaField['attributes'] = {};
   if (options.id.length === 1 && options.id[0] === name) attributes.id = true;
+  if (options.unique?.includes(name)) attributes.unique = true;
 
   let current: ZodTypeAny = ZodLazy.create(() => schema);
   while (
@@ -116,14 +118,16 @@ export function parseField(
 
 export function parseRelationField(
   name: string,
-  relation: [string] | [string, string[], string[]],
+  relation: AnyRelation,
 ): PrismaField {
   return {
     name,
-    type: relation[0],
+    type: relation.name,
     attributes: {
-      list: relation.length === 1,
-      relation: relation.length > 1 ? [relation[1]!, relation[2]!] : undefined,
+      list: relation.list,
+      nullable: relation.nullable,
+      relation: relation.fields &&
+        relation.references && [relation.fields, relation.references],
     },
   };
 }
