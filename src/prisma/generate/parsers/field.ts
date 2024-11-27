@@ -42,6 +42,7 @@ export function parseField(
   const attributes: PrismaField['attributes'] = {};
   if (options.id.length === 1 && options.id[0] === name) attributes.id = true;
   if (options.unique?.includes(name)) attributes.unique = true;
+  if (options.updatedAt?.includes(name)) attributes.updatedAt = true;
 
   let current: ZodTypeAny = ZodLazy.create(() => schema);
   while (

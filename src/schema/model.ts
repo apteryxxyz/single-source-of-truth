@@ -52,6 +52,7 @@ export interface ModelOptions<
   id: [TKey, ...TKey[]];
   unique?: (TKey | TKey[])[];
   index?: TKey[][];
+  updatedAt?: TKey[];
 }
 
 export interface ModelRelations {
