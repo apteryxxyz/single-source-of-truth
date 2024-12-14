@@ -136,16 +136,42 @@ export class TruthModel<
     });
   }
 
+  static create<TName extends string, TShape extends ModelRawShape>(
+    name: TName,
+    shape: TShape,
+  ): TruthModel<TName, TShape, ZodObject<MakeZodRawShape<TShape>>>;
   static create<
     TName extends string,
     TShape extends ModelRawShape,
-    TSchema extends ZodTypeAny = ZodObject<MakeZodRawShape<TShape>>,
-  >(name: TName, things: TShape | [TShape, TSchema]) {
+    TSchema extends ZodTypeAny,
+  >(name: TName, things: [TShape, TSchema]): TruthModel<TName, TShape, TSchema>;
+  static create<
+    TName extends string,
+    TShape extends ModelRawShape,
+    TSchema extends ZodTypeAny,
+  >(
+    name: TName,
+    things: [TShape, (schema: ZodObject<MakeZodRawShape<TShape>>) => TSchema],
+  ): TruthModel<TName, TShape, TSchema>;
+  static create<
+    TName extends string,
+    TShape extends ModelRawShape,
+    TSchema extends ZodTypeAny,
+  >(
+    name: TName,
+    things:
+      | TShape
+      | [TShape, TSchema]
+      | [TShape, (schema: ZodObject<MakeZodRawShape<TShape>>) => TSchema],
+  ) {
     const shape = Array.isArray(things) ? things[0] : things;
+    const schemaFactory = Array.isArray(things)
+      ? things[1]
+      : ZodObject.create(makeZodRawShape(shape));
     const schema = (
-      Array.isArray(things)
-        ? things[1]
-        : ZodObject.create(makeZodRawShape(shape))
+      schemaFactory instanceof Function
+        ? schemaFactory(ZodObject.create(makeZodRawShape(shape)))
+        : schemaFactory
     ) as TSchema;
 
     return new TruthModel<TName, TShape, TSchema>({
