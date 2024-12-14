@@ -1,6 +1,7 @@
 import './prototype';
 
 import {
+  type ParseInput,
   type TypeOf,
   ZodIntersection,
   ZodLazy,
@@ -90,8 +91,8 @@ export class TruthModel<
     Reflect.set(Models, def.name, this);
   }
 
-  override _parse(input: unknown) {
-    return this._def.schema().parse(input);
+  override _parse(input: ParseInput) {
+    return this._def.schema()._parse(input);
   }
 
   get shape() {
