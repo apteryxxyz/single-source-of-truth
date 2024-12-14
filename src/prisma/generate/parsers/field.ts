@@ -4,7 +4,6 @@ import {
   ZodDate,
   ZodDefault,
   ZodEffects,
-  ZodEnum,
   ZodLazy,
   ZodNullable,
   ZodNumber,
@@ -16,9 +15,9 @@ import {
   ZodUnknown,
 } from 'zod';
 import logger from '~/logger';
-import { Enums } from '~/schema/enum';
-import type { ModelOptions } from '~/schema/model';
-import type { AnyRelation } from '~/schema/relation';
+import { TruthEnum } from '~/schema/enum';
+import { TruthRelation } from '~/schema/relation';
+import { Id, Unique, UpdatedAt } from '~/schema/symbols';
 
 export interface PrismaField {
   name: string;
@@ -34,15 +33,8 @@ export interface PrismaField {
   };
 }
 
-export function parseField(
-  name: string,
-  schema: ZodTypeAny,
-  options: ModelOptions<ZodTypeAny>,
-): PrismaField {
+export function parseField(name: string, schema: ZodTypeAny): PrismaField {
   const attributes: PrismaField['attributes'] = {};
-  if (options.id.length === 1 && options.id[0] === name) attributes.id = true;
-  if (options.unique?.includes(name)) attributes.unique = true;
-  if (options.updatedAt?.includes(name)) attributes.updatedAt = true;
 
   let current: ZodTypeAny = ZodLazy.create(() => schema);
   while (
@@ -54,7 +46,8 @@ export function parseField(
       current instanceof ZodObject ||
       current instanceof ZodRecord ||
       current instanceof ZodUnknown ||
-      current instanceof ZodEnum
+      current instanceof TruthEnum ||
+      current instanceof TruthRelation
     )
   ) {
     if (current instanceof ZodLazy) {
@@ -62,14 +55,14 @@ export function parseField(
     } else if (current instanceof ZodEffects) {
       current = current._def.schema;
     } else if (current instanceof ZodArray) {
+      attributes.list = true;
       current = current._def.type;
-      attributes.list = true;
     } else if (current instanceof ZodTuple) {
-      current = current._def.items[0];
       attributes.list = true;
+      current = current._def.items[0];
     } else if (current instanceof ZodNullable) {
-      current = current._def.innerType;
       attributes.nullable = true;
+      current = current._def.innerType;
     } else if (current instanceof ZodDefault) {
       attributes.default = current._def.defaultValue;
       current = current._def.innerType;
@@ -85,13 +78,17 @@ export function parseField(
         process.exit(1);
       }
     }
+
+    if (current._def[Id]) attributes.id = true;
+    if (current._def[Unique]) attributes.unique = true;
+    if (current._def[UpdatedAt]) attributes.updatedAt = true;
   }
 
   let type = undefined;
   if (current instanceof ZodString) {
     type = 'String';
   } else if (current instanceof ZodNumber) {
-    if (current._def.checks.some((c) => c.kind === 'int')) type = 'Int';
+    if (current.isInt) type = 'Int';
     else type = 'Float';
   } else if (current instanceof ZodBoolean) {
     type = 'Boolean';
@@ -103,10 +100,12 @@ export function parseField(
     current instanceof ZodUnknown
   ) {
     type = 'Json';
-  } else if (current instanceof ZodEnum) {
-    const found = Object.entries(Enums).find(([_, e]) => e === current);
-    if (found) type = found[0]!;
-    else type = 'String';
+  } else if (current instanceof TruthEnum) {
+    type = current._def.name;
+  } else if (current instanceof TruthRelation) {
+    type = current._def.modelName;
+    if (current._def.relatedFields && current._def.fields)
+      attributes.relation = [current._def.fields, current._def.relatedFields];
   } else {
     logger.error(
       `Failed to parse the field '${name}', could not determine type`,
@@ -115,20 +114,4 @@ export function parseField(
   }
 
   return { name, type, attributes };
-}
-
-export function parseRelationField(
-  name: string,
-  relation: AnyRelation,
-): PrismaField {
-  return {
-    name,
-    type: relation.name,
-    attributes: {
-      list: relation.list,
-      nullable: relation.nullable,
-      relation: relation.fields &&
-        relation.references && [relation.fields, relation.references],
-    },
-  };
 }

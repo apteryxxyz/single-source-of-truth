@@ -10,15 +10,14 @@ export function buildPrismaSchema(models: PrismaModel[], enums: PrismaEnum[]) {
     schema += `enum ${e.name} {\n`;
 
     for (const v of e.values) {
-      // Field name
-      schema += `  ${v}`;
-      schema += '\n';
+      // Value name
+      schema += `  ${v}\n`;
     }
 
     schema += '}\n\n';
   }
 
-  const enumsStr = schema;
+  const schemaSnapshot = schema;
 
   // Models
   for (const m of models) {
@@ -49,7 +48,8 @@ export function buildPrismaSchema(models: PrismaModel[], enums: PrismaEnum[]) {
           const dv = df();
 
           if (Array.isArray(dv)) schema += ` @default([${dv.join(', ')}])`;
-          else if (enumsStr.includes(`  ${dv}`)) schema += ` @default(${dv})`;
+          else if (schemaSnapshot.includes(`  ${dv}`))
+            schema += ` @default(${dv})`;
           else if (typeof dv === 'string') schema += ` @default("${dv}")`;
           else if (typeof dv === 'number' || typeof dv === 'boolean')
             schema += ` @default(${dv})`;
@@ -62,13 +62,16 @@ export function buildPrismaSchema(models: PrismaModel[], enums: PrismaEnum[]) {
 
     // Model attributes
     if (m.attributes.id?.length)
-      schema += `  @@id([${m.attributes.id.join(', ')}])\n`;
+      schema += `  @@id([${m.attributes.id.join(',')}])\n`;
     if (m.attributes.unique?.length)
-      schema += `  @@unique([${m.attributes.unique.join(', ')}])\n`;
+      for (const u of m.attributes.unique)
+        schema += `  @@unique([${u.join(',')}])\n`;
     if (m.attributes.index?.length)
-      schema += `  @@index([${m.attributes.index.join(', ')}])\n`;
+      for (const i of m.attributes.index)
+        schema += `  @@index([${i.join(',')}])\n`;
+
     schema += '}\n\n';
   }
 
-  return `// This file was automatically generated, any changes made here will be lost\n\n${schema}`.trim();
+  return `// This file was automatically generated, any changes made here will be lost!\n\n${schema}`.trim();
 }

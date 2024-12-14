@@ -1,0 +1,13 @@
+// This file was automatically generated, any changes made here will be lost!
+
+model User {
+  id String @id
+  connections Connection[]
+}
+
+model Connection {
+  userId String
+  connectedTo String
+  user User @relation(fields: [userId], references: [id])
+  @@id([userId,connectedTo])
+}

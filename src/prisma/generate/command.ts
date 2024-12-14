@@ -58,7 +58,6 @@ const command = new Command('generate')
       await run();
 
       if (options.watch) {
-        logger.info('Watching...');
         watchFile(inputPath, async () => {
           logger.info('Regenerating...');
           await run();
