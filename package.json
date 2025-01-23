@@ -1,7 +1,7 @@
 {
   "name": "single-source-of-truth",
   "type": "module",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Use a single of truth for your Zod schemas and Prisma models",
   "packageManager": "pnpm@9.14.2",
   "license": "MIT",
