@@ -24,17 +24,11 @@ export class TruthRelation<TModelName extends keyof Models> extends ZodType<
     return INVALID;
   }
 
-  fields(fields: string[]) {
+  reference(field: string, relatedField: string) {
     return new TruthRelation<TModelName>({
       ...this._def,
-      fields,
-    });
-  }
-
-  references(references: string[]) {
-    return new TruthRelation<TModelName>({
-      ...this._def,
-      relatedFields: references,
+      fields: [...(this._def.fields ?? []), field],
+      relatedFields: [...(this._def.relatedFields ?? []), relatedField],
     });
   }
 
