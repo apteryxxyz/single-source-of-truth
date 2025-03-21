@@ -34,6 +34,8 @@ export interface PrismaField {
       fields: string[];
       relatedFields: string[];
       map?: string;
+      onUpdate?: string;
+      onDelete?: string;
     };
   };
 }
@@ -115,6 +117,8 @@ export function parseField(name: string, schema: ZodTypeAny): PrismaField {
         fields: current._def.fields,
         relatedFields: current._def.relatedFields,
         map: current._def.map,
+        onUpdate: current._def.onUpdate,
+        onDelete: current._def.onDelete,
       };
   } else {
     logger.error(

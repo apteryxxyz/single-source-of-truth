@@ -15,6 +15,8 @@ export interface TruthRelationDef<TModelName extends keyof Models>
   fields?: string[];
   relatedFields?: string[];
   map?: string;
+  onUpdate?: string;
+  onDelete?: string;
 }
 
 export class TruthRelation<TModelName extends keyof Models> extends ZodType<
@@ -37,6 +39,12 @@ export class TruthRelation<TModelName extends keyof Models> extends ZodType<
     return new TruthRelation<TModelName>({ ...this._def, map: name });
   }
 
+  action(
+    clause: 'onUpdate' | 'onDelete',
+    action: 'Cascade' | 'Restrict' | 'NoAction' | 'SetNull' | 'SetDefault',
+  ) {
+    return new TruthRelation<TModelName>({ ...this._def, [clause]: action });
+  }
 
   static create<TModelName extends keyof Models>(modelName: TModelName) {
     return new TruthRelation<TModelName>({

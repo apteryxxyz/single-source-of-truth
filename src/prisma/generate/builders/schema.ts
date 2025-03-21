@@ -40,6 +40,10 @@ export function buildPrismaSchema(models: PrismaModel[], enums: PrismaEnum[]) {
         schema += ` @relation(fields: [${f.attributes.relation.fields.join(',')}], references: [${f.attributes.relation.relatedFields.join(',')}]`;
         if (f.attributes.relation.map)
           schema += `, map: "${f.attributes.relation.map}"`;
+        if (f.attributes.relation.onUpdate)
+          schema += `, onUpdate: "${f.attributes.relation.onUpdate}"`;
+        if (f.attributes.relation.onDelete)
+          schema += `, onDelete: "${f.attributes.relation.onDelete}"`;
         schema += ')';
       }
 
