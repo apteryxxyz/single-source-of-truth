@@ -17,7 +17,7 @@ import {
 import logger from '~/logger';
 import { TruthEnum } from '~/schema/enum';
 import { TruthRelation } from '~/schema/relation';
-import { Id, Unique, UpdatedAt } from '~/schema/symbols';
+import { Id, Map, Unique, UpdatedAt } from '~/schema/symbols';
 
 export interface PrismaField {
   name: string;
@@ -26,10 +26,15 @@ export interface PrismaField {
     id?: boolean;
     unique?: boolean;
     list?: boolean;
+    map?: string;
     nullable?: boolean;
     updatedAt?: boolean;
     default?: () => unknown;
-    relation?: [string[], string[]];
+    relation?: {
+      fields: string[];
+      relatedFields: string[];
+      map?: string;
+    };
   };
 }
 
@@ -81,6 +86,7 @@ export function parseField(name: string, schema: ZodTypeAny): PrismaField {
 
     if (current._def[Id]) attributes.id = true;
     if (current._def[Unique]) attributes.unique = true;
+    if (current._def[Map]) attributes.map = current._def[Map];
     if (current._def[UpdatedAt]) attributes.updatedAt = true;
   }
 
@@ -105,7 +111,11 @@ export function parseField(name: string, schema: ZodTypeAny): PrismaField {
   } else if (current instanceof TruthRelation) {
     type = current._def.modelName;
     if (current._def.relatedFields && current._def.fields)
-      attributes.relation = [current._def.fields, current._def.relatedFields];
+      attributes.relation = {
+        fields: current._def.fields,
+        relatedFields: current._def.relatedFields,
+        map: current._def.map,
+      };
   } else {
     logger.error(
       `Failed to parse the field '${name}', could not determine type`,

@@ -36,8 +36,12 @@ export function buildPrismaSchema(models: PrismaModel[], enums: PrismaEnum[]) {
       if (f.attributes.unique) schema += ' @unique';
       if (f.attributes.updatedAt) schema += ' @updatedAt';
 
-      if (f.attributes.relation)
-        schema += ` @relation(fields: [${f.attributes.relation[0].join(',')}], references: [${f.attributes.relation[1].join(',')}])`;
+      if (f.attributes.relation) {
+        schema += ` @relation(fields: [${f.attributes.relation.fields.join(',')}], references: [${f.attributes.relation.relatedFields.join(',')}]`;
+        if (f.attributes.relation.map)
+          schema += `, map: "${f.attributes.relation.map}"`;
+        schema += ')';
+      }
 
       if (f.attributes.default) {
         const df = f.attributes.default;
@@ -61,14 +65,29 @@ export function buildPrismaSchema(models: PrismaModel[], enums: PrismaEnum[]) {
     }
 
     // Model attributes
-    if (m.attributes.id?.length)
-      schema += `  @@id([${m.attributes.id.join(',')}])\n`;
-    if (m.attributes.unique?.length)
-      for (const u of m.attributes.unique)
-        schema += `  @@unique([${u.join(',')}])\n`;
-    if (m.attributes.index?.length)
-      for (const i of m.attributes.index)
-        schema += `  @@index([${i.join(',')}])\n`;
+    if (m.attributes.id) {
+      schema += `  @@id([${m.attributes.id.fields.join(',')}]`;
+      if (m.attributes.id.name) schema += `, name: "${m.attributes.id.name}"`;
+      if (m.attributes.id.map) schema += `, map: "${m.attributes.id.map}"`;
+      schema += ')\n';
+    }
+    if (m.attributes.unique?.length) {
+      for (const u of m.attributes.unique) {
+        schema += `  @@unique([${u.fields.join(',')}]`;
+        if (u.name) schema += `, name: "${u.name}"`;
+        if (u.map) schema += `, map: "${u.map}"`;
+        schema += ')\n';
+      }
+    }
+    if (m.attributes.index?.length) {
+      for (const i of m.attributes.index) {
+        schema += `  @@index([${i.fields.join(',')}]`;
+        if (i.name) schema += `, name: "${i.name}"`;
+        if (i.map) schema += `, map: "${i.map}"`;
+        schema += ')\n';
+      }
+    }
+    if (m.attributes.map) schema += `  @@map("${m.attributes.map}")\n`;
 
     schema += '}\n\n';
   }

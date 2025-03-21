@@ -18,7 +18,7 @@ import {
   resolveRelationSchema,
   wrapRelationSchema,
 } from './relation';
-import { Id, Index, Unique } from './symbols';
+import { Id, Index, Map, Unique } from './symbols';
 
 export interface Models extends Record<string, AnyTruthModel> {}
 export const Models: Models = {};
@@ -27,9 +27,16 @@ export const Models: Models = {};
 
 export type ModelRawShape =
   | {
-      [Id]?: [string, ...string[]];
-      [Unique]?: string[][];
-      [Index]?: string[][];
+      [Id]?: { fields: string[]; name?: string; map?: string } | string[];
+      [Unique]?: (
+        | { fields: string[]; name?: string; map?: string }
+        | string[]
+      )[];
+      [Index]?: (
+        | { fields: string[]; name?: string; map?: string }
+        | string[]
+      )[];
+      [Map]?: string;
     }
   | {
       [key: string]: ZodTypeAny;

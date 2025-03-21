@@ -7,4 +7,5 @@ export {
   Index as index,
   Unique as unique,
   UpdatedAt as updatedAt,
+  Map as map,
 } from './schema/symbols';

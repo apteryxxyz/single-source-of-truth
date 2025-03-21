@@ -1,14 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
   "files": {
-    "ignore": [
-      "node_modules/*",
-      "dist/*",
-      ".next/*",
-      ".plasmo/*",
-      "build/*",
-      "generated/*"
-    ]
+    "ignore": ["node_modules/*", "dist/*"]
   },
   "formatter": {
     "enabled": true,
@@ -28,7 +21,8 @@
       },
       "suspicious": {
         "noAssignInExpressions": "off",
-        "noArrayIndexKey": "off"
+        "noArrayIndexKey": "off",
+        "noShadowRestrictedNames": "off"
       },
       "nursery": {
         "recommended": true,

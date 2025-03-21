@@ -14,6 +14,7 @@ export interface TruthRelationDef<TModelName extends keyof Models>
   modelName: TModelName;
   fields?: string[];
   relatedFields?: string[];
+  map?: string;
 }
 
 export class TruthRelation<TModelName extends keyof Models> extends ZodType<
@@ -31,6 +32,11 @@ export class TruthRelation<TModelName extends keyof Models> extends ZodType<
       relatedFields: [...(this._def.relatedFields ?? []), relatedField],
     });
   }
+
+  map(name: string) {
+    return new TruthRelation<TModelName>({ ...this._def, map: name });
+  }
+
 
   static create<TModelName extends keyof Models>(modelName: TModelName) {
     return new TruthRelation<TModelName>({

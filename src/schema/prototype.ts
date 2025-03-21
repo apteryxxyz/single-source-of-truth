@@ -1,5 +1,5 @@
-import { ZodDate, ZodNumber, ZodString, type ZodTypeAny } from 'zod';
-import { Id, Unique, UpdatedAt } from './symbols';
+import { ZodDate, ZodNumber, ZodString, ZodType, type ZodTypeAny } from 'zod';
+import { Id, Map, Unique, UpdatedAt } from './symbols';
 
 // ===== Id ===== //
 
@@ -47,6 +47,30 @@ for (const Z of [ZodString, ZodNumber]) {
     return new Z({ ...this._def, [Unique]: true });
   }
   Reflect.set(Z.prototype, Unique, setUnique);
+}
+
+// ===== Map ===== //
+
+declare module 'zod' {
+  interface ZodTypeDef {
+    [Map]?: string;
+  }
+  interface ZodType<
+    // biome-ignore lint/suspicious/noExplicitAny: i do what i want
+    Output = any,
+    Def extends ZodTypeDef = ZodTypeDef,
+    Input = Output,
+  > {
+    [Map](name: string): ZodType<Output, Def, Input>;
+  }
+}
+
+for (const Z of [ZodType]) {
+  function setMap(this: ZodTypeAny, name: string) {
+    const ZZ = this.constructor as typeof ZodString;
+    return new ZZ({ ...this._def, [Map]: name });
+  }
+  Reflect.set(Z.prototype, Map, setMap);
 }
 
 // ===== UpdatedAt ===== //
