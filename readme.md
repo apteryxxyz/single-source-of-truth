@@ -1,7 +1,7 @@
 <div align='center'>
   <h1><strong>single-source-of-truth</strong></h1>
   <i>Use Zod schemas to your generate Prisma schema</i><br>
-  <code>npm install truth@single-source-of-truth zod@next</code>
+  <code>npm install truth@npm:single-source-of-truth zod@next</code>
 </div>
 
 <div align='center'>
@@ -14,9 +14,7 @@
 </div>
 
 ```sh
-npm install truth@single-source-of-truth zod@next
-pnpm add truth@single-source-of-truth zod@next
-yarn add truth@single-source-of-truth zod@next
+pnpm add truth@npm:single-source-of-truth zod@next
 ```
 
 ```ts
