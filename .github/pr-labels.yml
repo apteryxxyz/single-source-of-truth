@@ -1,0 +1,11 @@
+"dependencies":
+  - changed-files:
+      - any-glob-to-any-file: ["pnpm-lock.yaml"]
+
+"prisma":
+  - changed-files:
+      - any-glob-to-any-file: ["src/prisma/**"]
+
+"zod":
+  - changed-files:
+      - any-glob-to-any-file: ["src/zod/**"]

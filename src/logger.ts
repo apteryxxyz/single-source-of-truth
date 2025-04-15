@@ -5,15 +5,15 @@ function line(content: string) {
 }
 
 function error(message: string) {
-  console.error(chalk.red(`[sot] ${line(message)}`));
+  console.error(chalk.red(`[truth] ${line(message)}`));
 }
 
 function warn(message: string) {
-  console.warn(chalk.yellow(`[sot] ${line(message)}`));
+  console.warn(chalk.yellow(`[truth] ${line(message)}`));
 }
 
 function info(message: string) {
-  console.info(chalk.blue(`[sot] ${line(message)}`));
+  console.info(chalk.blue(`[truth] ${line(message)}`));
 }
 
 export default { error, warn, info };

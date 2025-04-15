@@ -1,10 +1,9 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
+  "$schema": "https://json.schemastore.org/tsconfig.json",
 
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "coverage", "test", "tests"],
+  "include": ["${configDir}/src/**/*"],
+  "exclude": ["node_modules", "dist"],
 
-  "compileOnSave": true,
   "compilerOptions": {
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -26,12 +25,12 @@
     "resolvePackageJsonExports": true,
     "resolvePackageJsonImports": true,
 
-    "declaration": false,
-    "declarationMap": false,
+    "declaration": true,
+    "declarationMap": true,
+    "composite": true,
     "importHelpers": false,
     "newLine": "lf",
     "noEmitHelpers": true,
-    "outDir": "dist",
     "removeComments": false,
     "sourceMap": true,
 
@@ -41,9 +40,22 @@
     "isolatedModules": true,
 
     "experimentalDecorators": true,
-    "lib": ["ESNext"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "target": "ES2022",
+    "jsx": "preserve",
     "useDefineForClassFields": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+
+    "diagnostics": true,
+    "rootDir": "${configDir}/src",
+    "baseUrl": "${configDir}",
+    "outDir": "${configDir}/dist",
+    "tsBuildInfoFile": "${configDir}/dist/.tsbuildinfo",
+    "paths": { "~/*": ["src/*"] },
+
+    "plugins": [
+      { "transform": "typescript-transform-paths" },
+      { "transform": "typescript-transform-paths", "afterDeclarations": true }
+    ]
   }
 }

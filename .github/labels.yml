@@ -1,0 +1,33 @@
+# Labels primarily for issues
+
+- name: bug
+  description: Something is broken or not working as expected
+  color: d73a4a
+
+- name: request
+  description: A request for a new feature or a change in behaviour
+  color: 0075ca
+
+# Labels primarily for pull requests
+
+- name: dependencies
+  description: Updates or changes related to project dependencies
+  color: ffb300
+
+- name: prisma
+  description: Modifications or updates to Prisma adapter code
+  color: 143a51
+
+- name: zod
+  description: Modifications or updates to Zod adapter code
+  color: 408cff
+
+# Labels primarily for both issues and pull requests
+
+- name: blocked
+  description: Progress is halted due to a dependency or required action
+  color: d73a4a
+
+- name: duplicate
+  description: This issue or pull request already exists
+  color: cfd3d7
