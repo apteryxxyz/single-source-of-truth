@@ -1,7 +1,7 @@
 <div align='center'>
   <h1><strong>single-source-of-truth</strong></h1>
-  <i>Use Zod schemas to your generate Prisma schema</i><br>
-  <code>npm install truth@npm:single-source-of-truth zod@next</code>
+  <i>Use Zod schemas to generate your Prisma schema</i><br>
+  <code>pnpm add truth@npm:single-source-of-truth zod@next</code>
 </div>
 
 <div align='center'>
@@ -10,7 +10,7 @@
   <br>
   <a href='https://github.com/apteryxxyz/single-source-of-truth'><img alt='single-source-of-truth repo stars' src='https://img.shields.io/github/stars/apteryxxyz/single-source-of-truth?style=social'></a>
   <a href='https://github.com/apteryxxyz'><img alt='apteryxxyz followers' src='https://img.shields.io/github/followers/apteryxxyz?style=social'></a>
-  <a href='https://discord.gg/B2rEQ9g2vf'><img src='https://discordapp.com/api/guilds/829836158007115806/widget.png?style=shield' alt='discord shield'/></a>
+  <a href='https://discord.gg/g5wz46CXNK'><img src='https://discordapp.com/api/guilds/829836158007115806/widget.png?style=shield' alt='discord shield'/></a>
 </div>
 
 ```sh

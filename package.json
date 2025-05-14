@@ -1,6 +1,6 @@
 {
   "name": "single-source-of-truth",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "packageManager": "pnpm@10.8.1",
   "type": "module",
   "description": "Use Zod schemas to your generate Prisma schema",
