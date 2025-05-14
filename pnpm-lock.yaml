@@ -25,8 +25,8 @@ importers:
         specifier: ^22.14.1
         version: 22.14.1
       '@zod/core':
-        specifier: ^0.5.0
-        version: 0.5.0
+        specifier: ^0.11.6
+        version: 0.11.6
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -42,10 +42,9 @@ importers:
       typescript-transform-paths:
         specifier: ^3.5.5
         version: 3.5.5(typescript@5.8.3)
-    optionalDependencies:
       zod:
-        specifier: 4.0.0-beta.20250414T061543
-        version: 4.0.0-beta.20250414T061543
+        specifier: 4.0.0-beta.20250505T195954
+        version: 4.0.0-beta.20250505T195954
 
 packages:
 
@@ -105,8 +104,8 @@ packages:
   '@types/node@22.14.1':
     resolution: {integrity: sha512-u0HuPQwe/dHrItgHHpmw3N2fYCR6x4ivMNbPHRkBVP4CvN+kiRrKHWk3i8tXiO/joPwXLMYvF9TTF0eqgHIuOw==}
 
-  '@zod/core@0.5.0':
-    resolution: {integrity: sha512-9EW5fOng5558DM68WmVtecPzHuROdB5AcBVOBVqtPIup1quYRxxzwzT9+BPNX5Pr+so0wP/Hxv8+pCrBbjKQeg==}
+  '@zod/core@0.11.6':
+    resolution: {integrity: sha512-03Bv82fFSfjDAvMfdHHdGSS6SOJs0iCcJlWJv1kJHRtoTT02hZpyip/2Lk6oo4l4FtjuwTrsEQTwg/LD8I7dJA==}
 
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
@@ -239,8 +238,8 @@ packages:
     engines: {node: ^16.13.0 || >=18.0.0}
     hasBin: true
 
-  zod@4.0.0-beta.20250414T061543:
-    resolution: {integrity: sha512-1X7/cVHAWBt9jEIIg2Q2GFEApZy1VYe+YBxsjwVMmDZfMvn09CylsKLGZtfjZ/cwYrJha0OIWOh+MouaOj3Zdg==}
+  zod@4.0.0-beta.20250505T195954:
+    resolution: {integrity: sha512-iB8WvxkobVIXMARvQu20fKvbS7mUTiYRpcD8OQV1xjRhxO0EEpYIRJBk6yfBzHAHEdOSDh3SxDITr5Eajr2vtg==}
 
 snapshots:
 
@@ -283,7 +282,7 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@zod/core@0.5.0': {}
+  '@zod/core@0.11.6': {}
 
   ansi-regex@5.0.1: {}
 
@@ -390,7 +389,6 @@ snapshots:
     dependencies:
       isexe: 3.1.1
 
-  zod@4.0.0-beta.20250414T061543:
+  zod@4.0.0-beta.20250505T195954:
     dependencies:
-      '@zod/core': 0.5.0
-    optional: true
+      '@zod/core': 0.11.6

@@ -39,6 +39,7 @@ export function relation<RelatedShape extends TruthShape>(
 ): TruthRelation<RelatedShape> {
   return new TruthRelation({
     type: 'custom',
+    // @ts-expect-error - weird type stuff
     getter: getter,
     references: [],
   }) as any;

@@ -45,18 +45,15 @@
     "code-block-writer": "^13.0.3",
     "commander": "^13.1.0"
   },
-  "optionalDependencies": {
-    "zod": "4.0.0-beta.20250414T061543"
-  },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@types/node": "^22.14.1",
-    "@zod/core": "^0.5.0",
+    "@zod/core": "^0.11.6",
     "husky": "^9.1.7",
     "pinst": "^3.0.0",
     "ts-patch": "^3.3.0",
     "typescript": "^5.8.3",
     "typescript-transform-paths": "^3.5.5",
-    "zod": "4.0.0-beta.20250414T061543"
+    "zod": "4.0.0-beta.20250505T195954"
   }
 }

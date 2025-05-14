@@ -33,8 +33,7 @@ export interface TruthModel<Shape extends TruthShape = TruthShape>
     Include extends keyof TruthShapeUtil.ExtractRelationsShape<Shape>,
     Relation extends
       TruthRelationUtil.AnyRelationAny = TruthShapeUtil.ExtractRelationsShape<Shape>[Include],
-    Model extends
-      z.ZodType = // @ts-expect-error - i do what i want fr fr no cap
+    Model extends z.ZodType = // @ts-expect-error - weird type stuff
     TruthRelationUtil.ExtractModelFromRelation<Relation>,
     Schema extends z.ZodType = Model,
   >(
@@ -81,8 +80,5 @@ export function model<Shape extends TruthShape>(
       TruthShapeUtil.extractAttributesShape(shape),
     ),
     relations: TruthShapeUtil.extractRelationsShape(shape),
-    get optional() {
-      return z.core.util.optionalObjectKeys(this.shape);
-    },
   }) as any;
 }
