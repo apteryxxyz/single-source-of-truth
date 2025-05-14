@@ -18,8 +18,8 @@ export interface TruthEnum<Values extends readonly string[] = readonly string[]>
   extends z.ZodEnum<z.core.util.ToEnum<Values[number]>> {
   _zod: TruthEnumInternals<z.core.util.ToEnum<Values[number]>>;
 
-  Enum: this & this['enum'];
-  Values: Values;
+  this: this & this['enum'];
+  values: Values;
   toStandard(): Standard.Enum;
 }
 
@@ -28,20 +28,20 @@ export const TruthEnum: z.core.$constructor<TruthEnum> = z.core.$constructor(
   (inst, def) => {
     z.ZodEnum.init(inst as any, def);
 
-    inst.Values = Object.values(inst.enum);
-    inst.enum = Object.fromEntries(inst.Values.map((v) => [v, v]));
-    inst.Enum = Object.assign(inst, inst.enum);
+    inst.values = Object.values(inst.enum);
+    inst.enum = Object.fromEntries(inst.values.map((v) => [v, v]));
+    inst.this = Object.assign(inst, inst.enum);
     inst.toStandard = () => parseEnumSchema(def.name ?? '', inst);
   },
 );
 
 export function enum_<const Values extends readonly string[]>(
   values: Values,
-): TruthEnum<Values>['Enum'] {
+): TruthEnum<Values>['this'] {
   return new TruthEnum({
     type: 'enum',
     name: null,
     entries: z.core.util.getValidEnumValues(values),
-  }).Enum as any;
+  }).this as any;
 }
 export { enum_ as enum };
