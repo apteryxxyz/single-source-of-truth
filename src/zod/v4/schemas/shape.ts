@@ -11,8 +11,6 @@ export interface AttributesShape {
 
 export type TruthShape = AttributesShape & ZodShape;
 
-//
-
 export namespace TruthShapeUtil {
   export type IsAttributesKey<Key extends string> =
     Key extends keyof AttributesShape ? true : false;
@@ -81,14 +79,14 @@ export namespace TruthShapeUtil {
     {
       [K in keyof Shape as Shape[K] extends z.ZodType ? K : never]: Shape[K];
     },
-    keyof AttributesShape /* | keyof ExtractRelationsShape<Shape> */
+    keyof AttributesShape | keyof ExtractRelationsShape<Shape>
   >;
 
   export function extractZodShape<Shape extends TruthShape>(shape: Shape) {
     return Object.entries(shape).reduce(
       (shape, [k, v]) => {
         if (isAttributesKey(k)) return shape;
-        // if (TruthRelationUtil.isAnyRelation(v)) return shape;
+        if (TruthRelationUtil.isAnyRelation(v)) return shape;
         Reflect.set(shape, k, v);
         return shape;
       },
