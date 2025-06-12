@@ -2,7 +2,7 @@ import { Registry } from './registry.js';
 
 export interface Modules {
   registry: Registry;
-  zod: typeof import('./zod/config.js');
+  'zod/v4': typeof import('./zod/v4/config.js');
   prisma: typeof import('./prisma/config.js');
 }
 

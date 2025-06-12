@@ -2,16 +2,13 @@ import { pathToFileURL } from 'node:url';
 import logger from '~/logger.js';
 import type { Registry } from '~/registry.js';
 import type { MaybeArray, Path } from '~/types.js';
-import { TruthEnum } from './schemas/enum.js';
-import { TruthModel } from './schemas/model.js';
+import { TruthEnum, TruthModel } from './export.js';
 
 async function import_(
   registry: Registry,
   possiblePaths: MaybeArray<Path<'.ts'>>,
 ) {
-  for (const relativePath of Array.isArray(possiblePaths)
-    ? possiblePaths
-    : [possiblePaths]) {
+  for (const relativePath of possiblePaths) {
     const url = pathToFileURL(relativePath).toString();
 
     logger.info(`Importing schemas from '${relativePath}'...`);

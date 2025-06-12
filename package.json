@@ -23,9 +23,9 @@
       "types": "./dist/config.d.ts",
       "import": "./dist/config.js"
     },
-    "./zod": {
-      "types": "./dist/zod/external.d.ts",
-      "import": "./dist/zod/external.js"
+    "./zod/v4": {
+      "types": "./dist/zod/v4/external.d.ts",
+      "import": "./dist/zod/v4/external.js"
     },
     "./package.json": "./package.json"
   },
@@ -47,13 +47,12 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@types/node": "^22.14.1",
-    "@zod/core": "^0.11.6",
+    "@types/node": "^24.0.1",
     "husky": "^9.1.7",
     "pinst": "^3.0.0",
     "ts-patch": "^3.3.0",
     "typescript": "^5.8.3",
     "typescript-transform-paths": "^3.5.5",
-    "zod": "4.0.0-beta.20250505T195954"
+    "zod": "3.25.62"
   }
 }

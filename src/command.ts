@@ -13,7 +13,7 @@ const program = new Command('truth').action(async () => {
 
   return configFn({
     registry: new Registry(),
-    zod: await import('./zod/config'),
+    'zod/v4': await import('./zod/v4/config'),
     prisma: await import('./prisma/config'),
   });
 });

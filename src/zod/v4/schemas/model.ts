@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import * as z from 'zod/v4';
 import type { Standard } from '~/standard.js';
 import { parseModelSchema } from '../resolvers/model.js';
 import { TruthRelationUtil } from './relation.js';
@@ -17,7 +17,7 @@ export interface TruthModelDef<Shape extends TruthShape = TruthShape>
 export interface TruthModelInternals<Shape extends TruthShape>
   extends z.core.$ZodObjectInternals<
     TruthShapeUtil.ExtractZodShape<Shape>,
-    Record<never, never>
+    { in: Record<never, never>; out: Record<never, never> }
   > {
   def: TruthModelDef<Shape>;
 }
@@ -25,9 +25,10 @@ export interface TruthModelInternals<Shape extends TruthShape>
 export interface TruthModel<Shape extends TruthShape = TruthShape>
   extends z.ZodObject<
     TruthShapeUtil.ExtractZodShape<Shape>,
-    Record<never, never>
+    { in: Record<never, never>; out: Record<never, never> }
   > {
   _zod: TruthModelInternals<Shape>;
+  def: TruthModelDef<Shape>;
 
   with<
     Include extends keyof TruthShapeUtil.ExtractRelationsShape<Shape>,
@@ -62,7 +63,7 @@ export const TruthModel: z.core.$constructor<TruthModel> = z.core.$constructor(
           ...inst._zod.def.shape,
           [include]: TruthRelationUtil.applyRelationWrapping(relation, schema),
         },
-      }) as any;
+      } as any) as any;
     };
     inst.toStandard = () => parseModelSchema(def.name ?? '', inst);
   },
@@ -75,10 +76,10 @@ export function model<Shape extends TruthShape>(
     type: 'object',
     name: null,
     shape: TruthShapeUtil.extractZodShape(shape),
-    includes: [],
     attributes: TruthShapeUtil.normaliseAttributesShape(
       TruthShapeUtil.extractAttributesShape(shape),
     ),
+    includes: [],
     relations: TruthShapeUtil.extractRelationsShape(shape),
   }) as any;
 }

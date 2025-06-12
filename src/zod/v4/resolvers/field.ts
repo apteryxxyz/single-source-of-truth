@@ -1,4 +1,4 @@
-import type * as z from 'zod';
+import type * as z from 'zod/v4';
 import type { Standard } from '~/standard';
 import type { TruthEnumDef } from '../schemas/enum.js';
 import type { TruthModelDef } from '../schemas/model.js';

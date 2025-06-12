@@ -1,4 +1,4 @@
-import type { Standard } from '~/standard';
+import type { Standard } from '~/standard.js';
 import type { TruthEnum } from '../schemas/enum.js';
 
 export function parseEnumSchema(name: string, schema: TruthEnum<any>) {

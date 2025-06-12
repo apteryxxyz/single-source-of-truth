@@ -1,8 +1,8 @@
-import { ZodType } from 'zod';
+import { ZodType } from 'zod/v4';
 import type { Standard } from '~/standard.js';
 import { id, unique, updatedAt } from './symbols.js';
 
-declare module '@zod/core' {
+declare module 'zod/v4/core' {
   interface $ZodTypeDef
     extends Pick<
       Standard.Model.Field.Attributes,
@@ -10,7 +10,7 @@ declare module '@zod/core' {
     > {}
 }
 
-declare module 'zod' {
+declare module 'zod/v4' {
   interface ZodString {
     [id](): this;
     [unique](): this;

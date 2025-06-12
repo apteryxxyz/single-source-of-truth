@@ -1,4 +1,4 @@
-import type * as z from 'zod';
+import type * as z from 'zod/v4';
 import { id, unique } from '../symbols.js';
 import { TruthRelationUtil } from './relation.js';
 
@@ -11,14 +11,15 @@ export interface AttributesShape {
 
 export type TruthShape = AttributesShape & ZodShape;
 
+//
+
 export namespace TruthShapeUtil {
-  export type IsAttributesKey<Key extends string> = Key extends AttributesShape
-    ? true
-    : false;
+  export type IsAttributesKey<Key extends string> =
+    Key extends keyof AttributesShape ? true : false;
 
   export function isAttributesKey<Key extends string>(
     key: Key,
-  ): key is AttributesShape & Key {
+  ): key is keyof AttributesShape & Key {
     return key === id || key === unique;
   }
 
@@ -80,14 +81,14 @@ export namespace TruthShapeUtil {
     {
       [K in keyof Shape as Shape[K] extends z.ZodType ? K : never]: Shape[K];
     },
-    keyof AttributesShape | keyof ExtractRelationsShape<Shape>
+    keyof AttributesShape /* | keyof ExtractRelationsShape<Shape> */
   >;
 
   export function extractZodShape<Shape extends TruthShape>(shape: Shape) {
     return Object.entries(shape).reduce(
       (shape, [k, v]) => {
         if (isAttributesKey(k)) return shape;
-        if (TruthRelationUtil.isAnyRelation(v)) return shape;
+        // if (TruthRelationUtil.isAnyRelation(v)) return shape;
         Reflect.set(shape, k, v);
         return shape;
       },

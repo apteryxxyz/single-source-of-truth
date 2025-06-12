@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import * as z from 'zod/v4';
 import type { Standard } from '~/standard.js';
 import { parseEnumSchema } from '../resolvers/enum.js';
 
@@ -17,6 +17,7 @@ export interface TruthEnumInternals<
 export interface TruthEnum<Values extends readonly string[] = readonly string[]>
   extends z.ZodEnum<z.core.util.ToEnum<Values[number]>> {
   _zod: TruthEnumInternals<z.core.util.ToEnum<Values[number]>>;
+  def: TruthEnumDef<z.core.util.ToEnum<Values[number]>>;
 
   this: this & this['enum'];
   values: Values;
@@ -35,13 +36,13 @@ export const TruthEnum: z.core.$constructor<TruthEnum> = z.core.$constructor(
   },
 );
 
-export function enum_<const Values extends readonly string[]>(
+function enum_<const Values extends readonly string[]>(
   values: Values,
 ): TruthEnum<Values>['this'] {
   return new TruthEnum({
     type: 'enum',
     name: null,
-    entries: z.core.util.getValidEnumValues(values),
+    entries: Object.fromEntries(values.map((v) => [v, v])),
   }).this as any;
 }
 export { enum_ as enum };
