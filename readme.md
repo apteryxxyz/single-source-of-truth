@@ -1,7 +1,7 @@
 <div align='center'>
   <h1><strong>single-source-of-truth</strong></h1>
   <i>Use Zod schemas to generate your Prisma schema</i><br>
-  <code>pnpm add truth@npm:single-source-of-truth zod@next</code>
+  <code>pnpm add truth@npm:single-source-of-truth zod</code>
 </div>
 
 <div align='center'>
@@ -14,20 +14,20 @@
 </div>
 
 ```sh
-pnpm add truth@npm:single-source-of-truth zod@next
+pnpm add truth@npm:single-source-of-truth zod
 ```
 
 ```ts
 // src/shapes.ts
 
-import * as t from 'truth/zod';
-import * as z from 'zod';
+import * as t from "truth/zod/v4";
+import * as z from "zod/v4";
 
 export const User = t.model({
   id: z.string()[t.id]()[t.unique](),
   get posts() {
     return t.relation(() => Post).array();
-  }
+  },
 });
 export type User = z.infer<typeof User>;
 //           ^? { id: string }
@@ -36,7 +36,7 @@ export const Post = t.model({
   id: z.string()[t.id]()[t.unique](),
   authorId: z.string(),
   get author() {
-    return t.relation(() => User).reference('authorId', 'id');
+    return t.relation(() => User).reference("authorId", "id");
   },
 
   title: z.string(),
@@ -44,7 +44,7 @@ export const Post = t.model({
 export type Post = z.infer<typeof Post>;
 //           ^? { id: string, authorId: string, title: string }
 
-const UserWithPosts = User.with('posts');
+const UserWithPosts = User.with("posts");
 type UserWithPosts = z.infer<typeof UserWithPosts>;
 //        ^? { id: string, posts: Post[] }
 ```
@@ -52,12 +52,12 @@ type UserWithPosts = z.infer<typeof UserWithPosts>;
 ```ts
 // truth.config.ts
 
-import { defineConfig } from 'truth/config';
+import { defineConfig } from "truth/config";
 
-export default defineConfig(({ registry, zod, prisma }) => {
-  await zod.import(registry, './src/shapes.ts');
-  await prisma.build(registry, './prisma/schema.prisma');
-})
+export default defineConfig(({ registry, "zod/v4": zod, prisma }) => {
+  await zod.import(registry, "./src/shapes.ts");
+  await prisma.build(registry, "./prisma/schema.prisma");
+});
 ```
 
 ```sh
@@ -77,4 +77,3 @@ model Post {
   title String
 }
 ```
-
