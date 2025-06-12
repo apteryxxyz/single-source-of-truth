@@ -8,7 +8,9 @@ async function import_(
   registry: Registry,
   possiblePaths: MaybeArray<Path<'.ts'>>,
 ) {
-  for (const relativePath of possiblePaths) {
+  for (const relativePath of Array.isArray(possiblePaths)
+    ? possiblePaths
+    : [possiblePaths]) {
     const url = pathToFileURL(relativePath).toString();
 
     logger.info(`Importing schemas from '${relativePath}'...`);
