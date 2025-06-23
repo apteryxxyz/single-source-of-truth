@@ -12,10 +12,8 @@ export function buildFieldLine(field: Standard.Model.Field) {
 
   if (field.attributes.id) cursor.space().write('@id');
   if (field.attributes.unique) cursor.space().write('@unique');
-  if (field.attributes.references?.length) {
-    const relation = buildFieldRelationAttribute(field.attributes.references);
-    cursor.space().write(relation);
-  }
+  const relation = buildFieldRelationAttribute(field.attributes);
+  if (relation) cursor.space().write(relation);
 
   return cursor.toString();
 }
@@ -42,18 +40,20 @@ function resolvePrismaType(field: Standard.Model.Field) {
 }
 
 function buildFieldRelationAttribute(
-  relation: NonNullable<Standard.Model.Field.Attributes['references']>,
+  attributes: NonNullable<Standard.Model.Field.Attributes>,
 ) {
-  const cursor = new Cursor();
+  const parts = [];
 
-  const fields = relation.map((r) => r[0]);
-  const references = relation.map((r) => r[1]);
+  if (attributes.name) parts.push(`name:"${attributes.name}"`);
 
-  cursor.write('@relation(');
-  cursor.write(
-    `fields: [${fields.join(',')}], references: [${references.join(',')}]`,
-  );
-  cursor.write(')');
+  if (attributes.references) {
+    const fields = attributes.references.map((r) => r[0]);
+    parts.push(`fields:[${fields.join(',')}]`);
+    const references = attributes.references.map((r) => r[1]);
+    parts.push(`references:[${references.join(',')}]`);
+  }
 
-  return cursor.toString();
+  if (parts.length === 0) return null;
+
+  return `@relation(${parts.join(',')})`;
 }

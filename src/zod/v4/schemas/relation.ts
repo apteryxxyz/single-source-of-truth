@@ -5,7 +5,8 @@ import type { TruthShape } from './shape.js';
 export interface TruthRelationDef<RelatedShape extends TruthShape = TruthShape>
   extends z.core.$ZodTypeDef {
   type: 'custom';
-  references: [field: string, relatedField: string][];
+  name?: string;
+  references?: [field: string, relatedField: string][];
   getter(): TruthModel<RelatedShape>;
 }
 
@@ -21,6 +22,7 @@ export interface TruthRelation<RelatedShape extends TruthShape = TruthShape>
   def: TruthRelationDef<RelatedShape>;
 
   unwrap(): TruthModel<RelatedShape>;
+  name(name: string): this;
   reference(field: string, relatedField: keyof RelatedShape): this;
 }
 
@@ -29,11 +31,12 @@ export const TruthRelation: z.core.$constructor<TruthRelation> =
     z.ZodType.init(inst, def);
 
     inst.unwrap = () => def.getter();
+    inst.name = (name) => inst.clone({ ...inst.def, ' name': name });
     inst.reference = (field, relatedField) =>
       inst.clone({
         ...inst.def,
-        references: [...inst.def.references, [field, relatedField]],
-      } as any);
+        ' references': [...(inst.def.references ?? []), [field, relatedField]],
+      });
   });
 
 export function relation<RelatedShape extends TruthShape>(
@@ -42,7 +45,6 @@ export function relation<RelatedShape extends TruthShape>(
   return new TruthRelation({
     type: 'custom',
     getter: getter as any,
-    references: [],
   }) as any;
 }
 

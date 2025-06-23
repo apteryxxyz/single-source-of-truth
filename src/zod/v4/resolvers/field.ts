@@ -28,9 +28,11 @@ function flattenSchemaChain(schema: z.ZodType) {
 function extractSchemaAttributes(schema: z.ZodType) {
   const attributes: Standard.Model.Field.Attributes = {};
 
-  if (schema.def?.id) attributes.id = true;
-  if (schema.def?.unique) attributes.unique = true;
-  if (schema.def?.references) attributes.references = schema.def.references;
+  if (schema.def?.[' id']) attributes.id = true;
+  if (schema.def?.[' unique']) attributes.unique = true;
+  if (schema.def?.[' name']) attributes.name = schema.def[' name'];
+  if (schema.def?.[' references'])
+    attributes.references = schema.def[' references'];
   if (schema.def.type === 'nullable') attributes.nullable = true;
   if (schema.def.type === 'array') attributes.list = true;
 

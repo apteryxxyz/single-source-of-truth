@@ -36,6 +36,7 @@ export namespace Standard {
         updatedAt?: boolean;
         nullable?: boolean;
         list?: boolean;
+        name?: string;
         references?: [string, string][];
       }
 

@@ -3,11 +3,13 @@ import type { Standard } from '~/standard.js';
 import { id, unique, updatedAt } from './symbols.js';
 
 declare module 'zod/v4/core' {
-  interface $ZodTypeDef
-    extends Pick<
-      Standard.Model.Field.Attributes,
-      'id' | 'unique' | 'updatedAt' | 'references'
-    > {}
+  interface $ZodTypeDef {
+    ' id'?: Standard.Model.Field.Attributes['id'];
+    ' unique'?: Standard.Model.Field.Attributes['unique'];
+    ' updatedAt'?: Standard.Model.Field.Attributes['updatedAt'];
+    ' name'?: Standard.Model.Field.Attributes['name'];
+    ' references'?: Standard.Model.Field.Attributes['references'];
+  }
 }
 
 declare module 'zod/v4' {
@@ -26,18 +28,18 @@ declare module 'zod/v4' {
 ZodType.prototype[id] = function (this: ZodType) {
   return this.clone({
     ...this.def,
-    id: true,
+    ' id': true,
   });
 };
 ZodType.prototype[unique] = function (this: ZodType) {
   return this.clone({
     ...this.def,
-    unique: true,
+    ' unique': true,
   });
 };
 ZodType.prototype[updatedAt] = function (this: ZodType) {
   return this.clone({
     ...this.def,
-    updatedAt: true,
+    ' updatedAt': true,
   });
 };
