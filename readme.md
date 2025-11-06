@@ -20,20 +20,21 @@ pnpm add truth@npm:single-source-of-truth arktype
 ```ts
 // src/shapes.ts
 
+import { type } from 'arktype';
 import { model, relation } from 'truth/arktype';
 
 export const User = model({
-  id: 'string',
-  name: 'string',
+  id: type('string'),
+  name: type('string'),
   posts: () => relation(() => Post.array()),
 }, {});
 export type User = typeof User.infer;
 //           ^? { id: string, name: string }
 
 export const Post = model({
-  id: 'string',
-  authorId: 'string',
-  title: 'string',
+  id: type('string'),
+  authorId: type('string'),
+  title: type('string'),
   author: () => relation(() => User, [['authorId', 'id']]),
 }, {});
 export type Post = typeof Post.infer;
