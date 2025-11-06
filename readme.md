@@ -38,7 +38,7 @@ export const Post = model({
 }, {});
 export type Post = typeof Post.infer;
 //           ^? { id: string, authorId: string, title: string }
-~
+
 const UserWithPosts = User.include('posts');
 type UserWithPosts = typeof UserWithPosts.infer;
 //           ^? { id: string, name: string, posts: Post[] }

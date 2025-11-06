@@ -33,10 +33,11 @@ type relationFields<shape extends object> = {
 function relationFields<shape extends object>(shape: shape) {
   const result = {} as relationFields<shape>;
   for (const [key, value] of Object.entries(shape))
-    if (typeof value === 'function' && value.toString().includes('relation')) {
-      const maybe = value();
-      if (relation.is(maybe)) Reflect.set(result, key, maybe);
-    }
+    if (typeof value === 'function' && value.length === 0)
+      try {
+        const maybe = value();
+        if (relation.is(maybe)) Reflect.set(result, key, maybe);
+      } catch {}
   return result;
 }
 
