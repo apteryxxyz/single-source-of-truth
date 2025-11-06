@@ -1,6 +1,6 @@
 <div align='center'>
   <h1><strong>single-source-of-truth</strong></h1>
-  <i>Use Zod schemas to generate your Prisma schema</i><br>
+  <i>Use ArkType schemas to generate your Prisma schema</i><br>
   <code>pnpm add truth@npm:single-source-of-truth zod</code>
 </div>
 
@@ -14,49 +14,44 @@
 </div>
 
 ```sh
-pnpm add truth@npm:single-source-of-truth zod
+pnpm add truth@npm:single-source-of-truth arktype
 ```
 
 ```ts
 // src/shapes.ts
 
-import * as t from "truth/zod/v4";
-import * as z from "zod/v4";
+import { model, relation } from 'truth/arktype';
 
-export const User = t.model({
-  id: z.string()[t.id]()[t.unique](),
-  get posts() {
-    return t.relation(() => Post).array();
-  },
-});
-export type User = z.infer<typeof User>;
-//           ^? { id: string }
+export const User = model({
+  id: 'string',
+  name: 'string',
+  posts: () => relation(() => Post.array()),
+}, {});
+export type User = typeof User.infer;
+//           ^? { id: string, name: string }
 
-export const Post = t.model({
-  id: z.string()[t.id]()[t.unique](),
-  authorId: z.string(),
-  get author() {
-    return t.relation(() => User).reference("authorId", "id");
-  },
-
-  title: z.string(),
-});
-export type Post = z.infer<typeof Post>;
+export const Post = model({
+  id: 'string',
+  authorId: 'string',
+  title: 'string',
+  author: () => relation(() => User, [['authorId', 'id']]),
+}, {});
+export type Post = typeof Post.infer;
 //           ^? { id: string, authorId: string, title: string }
-
-const UserWithPosts = User.with("posts");
-type UserWithPosts = z.infer<typeof UserWithPosts>;
-//        ^? { id: string, posts: Post[] }
+~
+const UserWithPosts = User.include('posts');
+type UserWithPosts = typeof UserWithPosts.infer;
+//           ^? { id: string, name: string, posts: Post[] }
 ```
 
 ```ts
 // truth.config.ts
 
-import { defineConfig } from "truth/config";
+import { defineConfig } from 'truth/config';
 
-export default defineConfig(({ registry, "zod/v4": zod, prisma }) => {
-  await zod.import(registry, "./src/shapes.ts");
-  await prisma.build(registry, "./prisma/schema.prisma");
+export default defineConfig(({ registry, arktype, prisma }) => {
+  await arktype.import(registry, './src/shapes.ts');
+  await prisma.export(registry, './prisma/generated.prisma');
 });
 ```
 
@@ -66,14 +61,15 @@ truth
 
 ```prisma
 model User {
-  id String @id @unique
+  id String @id
+  name String
   posts Post[]
 }
 
 model Post {
-  id String @id @unique
+  id String @id
   authorId String
-  author User @relation(fields: [authorId], references: [id])
   title String
+  author User @relation(fields: [authorId], references: [id])
 }
 ```
