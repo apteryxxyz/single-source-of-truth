@@ -1,7 +1,7 @@
 <div align='center'>
   <h1><strong>single-source-of-truth</strong></h1>
   <i>Use ArkType schemas to generate your Prisma schema</i><br>
-  <code>pnpm add truth@npm:single-source-of-truth zod</code>
+  <code>pnpm add truth@npm:single-source-of-truth arktype</code>
 </div>
 
 <div align='center'>
