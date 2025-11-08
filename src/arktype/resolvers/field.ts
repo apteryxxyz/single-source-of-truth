@@ -10,12 +10,14 @@ export function parseField(name: string, field: Type): Standard.Model.Field {
 }
 
 function resolveField(
-  field: Type,
+  field: Type | string,
 ): [
   Standard.Model.Field.Kind,
   Standard.Model.Field.Type,
   Standard.Model.Field.Attributes,
 ] {
+  if (typeof field === 'string') field = type.raw(field);
+
   if (Array.isArray(field.json)) {
     // @ts-ignore
     if (field.json.at(-1)?.unit === null) {
