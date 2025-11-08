@@ -108,7 +108,7 @@ type Attributes<shape extends object> = ('id' extends keyof shape
   ? { id?: keyof shape | (keyof shape)[] }
   : { id: keyof shape | (keyof shape)[] }) & {
   unique?: (keyof shape | (keyof shape)[])[];
-  updatedAt: (keyof shape)[];
+  updatedAt?: (keyof shape)[];
 };
 
 type Truth<shape extends object> = {

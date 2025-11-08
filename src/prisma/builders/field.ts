@@ -12,6 +12,7 @@ export function buildFieldLine(field: Standard.Model.Field) {
 
   if (field.attributes.id) cursor.space().write('@id');
   if (field.attributes.unique) cursor.space().write('@unique');
+  if (field.attributes.updatedAt) cursor.space().write('@updatedAt');
   const relation = buildFieldRelationAttribute(field.attributes);
   if (relation) cursor.space().write(relation);
 
