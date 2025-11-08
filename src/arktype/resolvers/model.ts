@@ -16,6 +16,8 @@ export function parseModel(name: string, model: Model<any>): Standard.Model {
       field.attributes.id = true;
     if (model.truth.attributes.unique?.includes(key))
       field.attributes.unique = true;
+    if (model.truth.attributes.updatedAt?.includes(key))
+      field.attributes.updatedAt = true;
     return field;
   });
 
