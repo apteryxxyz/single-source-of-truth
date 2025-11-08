@@ -35,6 +35,16 @@ function resolveField(
     }
   }
 
+  if (
+    field.json &&
+    'branches' in field.json &&
+    Array.isArray(field.json.branches)
+  ) {
+    if (field.json.branches?.every((t: any) => t.domain?.domain === 'string')) {
+      return ['scalar', 'string', {}];
+    }
+  }
+
   // @ts-ignore
   switch (field.json?.domain?.domain ?? field.json?.domain) {
     case 'string':
