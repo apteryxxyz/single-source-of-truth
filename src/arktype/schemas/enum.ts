@@ -1,64 +1,47 @@
-import { type Type, type } from 'arktype';
+import { type Type as Ark, type as ark } from 'arktype';
 import type { Standard } from '~/standard.js';
-import { parseEnum } from '../resolvers/enum.js';
+import { enumToStandard } from '../resolvers/enum.js';
 
-////////////////////////////////////////////////////////////////////////////////
+type Schema<values extends string[]> = Ark<values[number]>;
 
-type Schema<values extends string[]> = Type<values[number]>;
-
-type Truth<values extends readonly string[]> = {
-  kind: 'enum';
-  name: string | null;
-  values: values;
+export type Enum<values extends string[] = any> = Schema<values> & {
+  truth: {
+    kind: 'enum';
+    name: string | null;
+    values: values;
+  };
+  toTruth(this: Enum): Standard.Enum;
 };
 
-////////////////////////////////////////////////////////////////////////////////
-
-export type Enum<values extends `${Uppercase<string>}${string}`[]> =
-  Schema<values> & {
-    truth: Truth<values>;
-    toTruth(): Standard.Enum;
-  } & { [I in values[number]]: I };
-
+// "enum" is a reserved keyword, so we append _
 export function enum_<const values extends `${Uppercase<string>}${string}`[]>(
   values: values,
 ): Enum<values> {
   const obj = Object.fromEntries(values.map((v) => [v, v])) as {
     [I in values[number]]: I;
   };
-  const instantiate = type
+
+  const parse = ark
     .valueOf(obj)
     // Force create a unique reference, avoids sharing references between enums
     // @ts-ignore
-    .configure({ 't.key': Math.random() }) as Schema<values>;
+    .configure({ ' key': Math.random() } as any) as Schema<values>;
 
-  const out = Object.assign(instantiate, {
+  return Object.assign(parse, {
     truth: {
-      kind: 'enum',
+      kind: 'enum' as const,
       name: null,
       values,
-    } satisfies Truth<values>,
-    toTruth(this: Enum<values>) {
-      return parseEnum(this.truth.name!, this);
     },
-    ...obj,
-  }) as unknown as Enum<values>;
-
-  // @ts-ignore
-  for (const branch of instantiate.branches)
-    Reflect.set(branch, 'truth', {
-      kind: 'enum',
-      get name() {
-        return out.truth.name;
-      },
-    });
-
-  return out;
+    toTruth(this: Enum) {
+      return enumToStandard(this.truth.name ?? this.toString(), this);
+    },
+  });
 }
 
 export namespace enum_ {
-  export function is(thing: unknown): thing is Enum<any> {
-    if (!(typeof thing === 'function')) return false;
+  export function is(thing: any): thing is Enum {
+    if (typeof thing !== 'function') return false;
     const truth = Reflect.get(thing, 'truth');
     return truth?.kind === 'enum';
   }

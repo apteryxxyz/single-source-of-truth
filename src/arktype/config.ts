@@ -20,7 +20,6 @@ async function import_(
       }
 
       if (model.is(target)) {
-        if (target.truth.includes.length > 0) continue;
         target.truth.name = name;
         registry.models.set(name, target);
       }

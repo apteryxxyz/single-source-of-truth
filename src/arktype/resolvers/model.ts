@@ -1,34 +1,34 @@
 import type { Standard } from '~/standard.js';
-import type { Model } from '../schemas/model.js';
-import { parseField } from './field.js';
+import { enum_ } from '../schemas/enum.js';
+import { field } from '../schemas/field.js';
+import type { Model, Shape } from '../schemas/model.js';
+import { fieldToStandard } from './field.js';
 
-export function parseModel(name: string, model: Model<any>): Standard.Model {
-  const fields = Object.entries(model.truth.shape).map(([key, schema]) => {
-    const type =
-      typeof schema === 'function' && schema.toString().includes('relation')
-        ? schema()
-        : schema;
-    const field = parseField(key, type);
-    if (
-      model.truth.attributes.id === key ||
-      (model.truth.attributes.id === undefined && key === 'id')
-    )
-      field.attributes.id = true;
-    if (model.truth.attributes.unique?.includes(key))
-      field.attributes.unique = true;
-    if (model.truth.attributes.updatedAt?.includes(key))
-      field.attributes.updatedAt = true;
-    return field;
-  });
+export function modelToStandard(name: string, model: Model): Standard.Model {
+  const fields = Object.entries(model.truth.shape as Shape).map(
+    ([name, value]) => {
+      if (field.is(value)) {
+        const standard = fieldToStandard(name, value);
+        if (value.truth.id) standard.attributes.id = true;
+        if (value.truth.unique) standard.attributes.unique = true;
+        if (value.truth.updatedAt) standard.attributes.updatedAt = true;
+        return standard;
+      } else if (enum_.is(value)) {
+        return {
+          name,
+          kind: 'enum' as const,
+          type: value.truth.name!,
+          attributes: {},
+        };
+      } else {
+        return fieldToStandard(name, value());
+      }
+    },
+  );
 
   const attributes: Standard.Model.Attributes = {};
-  if (Array.isArray(model.truth.attributes.id))
-    attributes.id = model.truth.attributes.id as string[];
-  for (const unique of model.truth.attributes.unique ?? [])
-    if (Array.isArray(unique)) {
-      attributes.unique = attributes.unique ?? [];
-      attributes.unique.push(unique as string[]);
-    }
+  if (model.truth.id) attributes.id = model.truth.id as any;
+  if (model.truth.unique) attributes.unique = model.truth.unique as any;
 
   return { name, attributes, fields };
 }
