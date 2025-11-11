@@ -20,29 +20,24 @@ pnpm add truth@npm:single-source-of-truth arktype
 ```ts
 // src/shapes.ts
 
-import { type } from 'arktype';
-import { model, relation } from 'truth/arktype';
+import { field, model, relation } from 'arktype';
 
 export const User = model({
-  id: type('string'),
-  name: type('string'),
+  id: field('string').id_(),
+  name: field('string | null'),
   posts: () => relation(() => Post.array()),
-}, {});
+});
 export type User = typeof User.infer;
-//           ^? { id: string, name: string }
+//           ^? { id: string, name: string | null }
 
 export const Post = model({
-  id: type('string'),
-  authorId: type('string'),
-  title: type('string'),
-  author: () => relation(() => User, [['authorId', 'id']]),
-}, {});
+  id: field('string').id_(),
+  authorId: field('string'),
+  title: field('string'),
+  author: () => relation(() => User).reference('authorId', 'id'),
+});
 export type Post = typeof Post.infer;
 //           ^? { id: string, authorId: string, title: string }
-
-const UserWithPosts = User.include('posts');
-type UserWithPosts = typeof UserWithPosts.infer;
-//           ^? { id: string, name: string, posts: Post[] }
 ```
 
 ```ts
@@ -63,7 +58,7 @@ truth
 ```prisma
 model User {
   id String @id
-  name String
+  name String?
   posts Post[]
 }
 
