@@ -1,6 +1,6 @@
 {
   "name": "single-source-of-truth",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "packageManager": "pnpm@10.20.0",
   "type": "module",
   "files": ["dist/**/*.{js,d.ts}"],
